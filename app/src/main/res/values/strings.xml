@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ReallySmartPhone</string>
+    <string name="app_prompt">Hello I am Nala and I am here to help you use your smart phone..
+    The menu you see contains all thing you can ask me to help you with.
+    Whenever you need me please tap the button above the menu and tell me one of the menu choices!</string>
+    <string name= "ask_contact_name">Ok! Please tell me the contact name.</string>
+    <string name= "ask_contact_number">Now tell me the contact number.</string>
+    <string name= "ask_contact_to_call">Who would you want me to call?</string>
+    <string name= "contact_to_call_missing">I am so sorry I cannot find a contact with this name! Please try again</string>
+</resources>
