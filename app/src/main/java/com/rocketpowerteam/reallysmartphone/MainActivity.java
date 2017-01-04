@@ -1,80 +1,68 @@
 package com.rocketpowerteam.reallysmartphone;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.content.Intent;
+import android.database.Cursor;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import static android.provider.ContactsContract.*;
 
-    ListView lv;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+
     Button btn;
     final int check = 111;
     final int get_contact_name =112;
-    ArrayList<String> menu_items;
-    enum MenuItem { CONTACT("Add Contact"), TORCH("Switch on torch"), CALL("Call someone"), MUSIC("Play music");
-        public String detail;
+    TextToSpeech tts;
 
-        MenuItem(String detail){
-            this.detail = detail;
+    enum MenuItem {
+        ADD_CONTACT(1, "add contact"), CALL_CONTACT(2, "call"), PLAY_MUSIC(3, "play music"),
+        READ_MESSAGE(4, "read message"), COMPOSE_MESSAGE(5, "create compose message");
+        int code;
+        String strCommand;
+        MenuItem(int code, String strCommand){
+            this.code = code;
+            this.strCommand = strCommand;
         }
 
-        public String getDetail(){return detail.toLowerCase();}
-
+        public String getStrCommand() {
+            return strCommand;
+        }
     }
-
-    TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        lv = (ListView)findViewById(R.id.menu);
         btn = (Button) findViewById(R.id.talktome);
         btn.setOnClickListener(this);
-        final Button helpBtn = (Button)findViewById(R.id.help_btn);
-        helpBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                tts.speak(getString(R.string.app_prompt),TextToSpeech.QUEUE_FLUSH,null);
-                LinearLayout.LayoutParams p1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.9f);
-                lv.setLayoutParams(p1);
-                LinearLayout.LayoutParams p2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.1f);
-                btn.setLayoutParams(p2);
-                ViewGroup layout = (ViewGroup) helpBtn.getParent();
-                if(null!=layout) //for safety only  as you are doing onClick
-                    layout.removeView(helpBtn);
-            }
-        });
-        menu_items = new ArrayList<>();
-        for(MenuItem e : MenuItem.values()){
-            menu_items.add(e.detail);
-        }
-        lv.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, menu_items));
-        lv.setEnabled(false);
-        lv.setClickable(false);
         tts = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener(){
 
             @Override
             public void onInit(int status) {
                 if(status == TextToSpeech.SUCCESS){
                     int res = tts.setLanguage(Locale.ENGLISH);
-
                     if(res == TextToSpeech.LANG_NOT_SUPPORTED || res == TextToSpeech.LANG_MISSING_DATA){
                         Log.e("TTS", "Language is not supported");
                     }
-
                 }else{
                     Log.e("TTS","Init failed");
                 }
@@ -83,9 +71,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tts.setSpeechRate(0.8f);
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+
+        //δεν εχω πολυκαταλαβει νομιζω ακομη τι παιζει με τα codes, στην startActivityForResult καλείται
+        //η onActivityResults η οποια εχει για requestCode αυτο το τσεκ που χουμε βαλει εμεις, και το
+        //result code dimiourgeitai automata. opote blepoume an aytopoy dimiourghuhke einai ok kai meta
+        //tsekaroyme se poia leitoyrgia anaferetai? ma ayto den to kseroume apo prin...an ta exw katalavei kala mexri edv
+        //skeftomoun na psaxname apla an yparxei kapoia ap tis lekseis px "add, new, contact" και να λεγαμε
+        // τοτε οτι ειμαστε στην περιπτωση 1 πχ, γιατι απο πριν δεν το ξερουμε, αυτό
         if(resultCode == RESULT_OK){
             switch (requestCode){
                 case check:
@@ -104,21 +99,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         for(String s:results){
             Log.i("res", s);
-            if(s.toLowerCase().equals(MenuItem.CALL.getDetail())){
-                make_call_conversation();
-                Log.i("menu"," call ");
+            if(s.toUpperCase().equals(MenuItem.ADD_CONTACT)){
+                //create CallContact object etc
+                Log.i("menu"," add contact ");
                 break;
-            }else if(s.toLowerCase().equals((MenuItem.CONTACT.getDetail()))){
-                add_contact();
-                Log.i("menu"," contact ");
+            }else if(s.toUpperCase().equals((MenuItem.CALL_CONTACT))){
+                Log.i("menu"," call contact ");
                 break;
-            }else if(s.toLowerCase().equals((MenuItem.TORCH.getDetail()))){
-                switch_on_torch();
-                Log.i("menu"," torch ");
+            }else if(s.toUpperCase().equals((MenuItem.PLAY_MUSIC))){
+                Log.i("menu"," play music ");
                 break;
-            }else if(s.toLowerCase().equals(MenuItem.MUSIC.getDetail())){
-                play_music();
-                Log.i("menu"," music ");
+            }else if(s.toUpperCase().equals(MenuItem.READ_MESSAGE)){
+                Log.i("menu"," read message");
+                break;
+            }else if(s.toUpperCase().equals(MenuItem.COMPOSE_MESSAGE)){
+                Log.i("menu"," compose message ");
                 break;
             }else{
                 continue;
@@ -126,22 +121,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void switch_on_torch() {
-        //TODO pi8anotata 8a figei auto...an dn figei prepei na pros8esoume svisimo fakou
-    }
-
-    private void play_music() {
-
-    }
-
-    private void add_contact() {
-        tts.speak(getString(R.string.ask_contact_name),TextToSpeech.QUEUE_FLUSH,null);
-
-    }
-
-
-    private void make_call_conversation() {
-    }
 
     @Override
     public void onClick(View view) {
