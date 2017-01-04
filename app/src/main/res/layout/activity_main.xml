@@ -12,36 +12,11 @@
     android:weightSum="1"
     android:orientation="vertical">
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/talktome"
-        android:id="@+id/menu"
-        android:scrollbars="vertical"
-        android:listSelector="@android:color/transparent"
-        android:layout_weight="0.8" />
-
     <Button
         android:layout_width="match_parent"
         android:layout_height="0px"
         android:id="@+id/talktome"
         android:layout_weight="0.1"
-        android:text="Tap to talk"
-        android:layout_above="@+id/help_btn"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:text="Help"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="0.1"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/help_btn" />
-
+        android:text="Tap to talk"/>
 
 </LinearLayout>
