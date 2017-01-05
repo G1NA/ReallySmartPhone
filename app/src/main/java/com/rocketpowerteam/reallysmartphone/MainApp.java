@@ -1,14 +1,22 @@
 package com.rocketpowerteam.reallysmartphone;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainApp extends AppCompatActivity implements View.OnClickListener{
+
+    Button btn;
+    TextToSpeech tts;
+    boolean calMode = false;
 
     enum MenuItem {
         ADD_CONTACT("add"), CALL_CONTACT("call"), PLAY_MUSIC("play music"),
@@ -22,6 +30,40 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        btn = (Button) findViewById(R.id.talktome);
+        btn.setOnClickListener(this);
+        tts = new TextToSpeech(MainApp.this, new TextToSpeech.OnInitListener(){
+
+            @Override
+            public void onInit(int status) {
+                if(status == TextToSpeech.SUCCESS){
+                    int res = tts.setLanguage(Locale.ENGLISH);
+                    if(res == TextToSpeech.LANG_NOT_SUPPORTED || res == TextToSpeech.LANG_MISSING_DATA){
+                        Log.e("TTS", "Language is not supported");
+                    }
+                    tts.speak(getString(R.string.app_prompt),TextToSpeech.QUEUE_FLUSH,null);
+                    //tts.setSpeechRate(0.8f);
+                }else{
+                    Log.e("TTS","Init failed");
+                }
+
+            }
+        });
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"en-US");
+        i.putExtra(RecognizerIntent.EXTRA_PROMPT, "Tap and talk baby!");
+        startActivityForResult(i, 1);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -38,10 +80,21 @@ public class MainActivity extends Activity implements View.OnClickListener{
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         for(String s:results){
             Log.i("res", s);
-            if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail())){
-                Log.i("menu"," call contact ");
-                CallContact c = new CallContact();
-                break;
+            if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || calMode){
+                if (!calMode) {
+                    Log.i("first"," call contact ");
+                    tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
+                    calMode = true;
+                    break;
+                }
+                else{
+                    MainApp m = this;
+                    CallApp c = new CallApp(s, m);
+                    c.makeCall(s);
+                    Log.i("second "," call contact ");
+                    calMode = false;
+                    break;
+                }
             }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase())){
                 Log.i("menu"," add contact ");
                 break;
