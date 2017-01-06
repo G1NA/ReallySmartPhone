@@ -12,7 +12,7 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class MainApp extends AppCompatActivity implements View.OnClickListener{
+public final class MainApp extends AppCompatActivity implements View.OnClickListener{
 
     Button btn;
     TextToSpeech tts;
@@ -90,7 +90,7 @@ public class MainApp extends AppCompatActivity implements View.OnClickListener{
                 else{
                     MainApp m = this;
                     CallApp c = new CallApp(s, m);
-                    c.makeCall(s);
+                    c.makeCall(results);
                     Log.i("second "," call contact ");
                     calMode = false;
                     break;
