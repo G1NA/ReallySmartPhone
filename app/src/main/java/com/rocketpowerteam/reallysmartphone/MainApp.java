@@ -18,17 +18,29 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     TextToSpeech tts;
     boolean calMode = false;
     MenuItem mode;
+    Contact contact;
 
     enum MenuItem {
-        ADD_CONTACT("add contact"), CALL_CONTACT("call"), PLAY_MUSIC("play music"),
-        READ_MESSAGE("read"), COMPOSE_MESSAGE("create compose"), SET_ALARM("alarm");
+        ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
+        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose", 0), SET_ALARM("alarm", 0);
         String strCommand;
-        MenuItem(String strCommand){
+        int inner_state = 0; // used to choose between inner states of a menu item
+        // for example call has two states 1) ask for name 2) make call
+        int max_state;
+        MenuItem(String strCommand, int max_state)
+        {
             this.strCommand = strCommand;
+            this.max_state = max_state;
         }
         public String getDetail() {
             return strCommand;
         }
+        public void changeState(){
+            inner_state += 1 % max_state;
+        }
+        public int getState(){ return this.inner_state; }
+
+        public void resetState() { this.inner_state = 0; }
     }
 
     @Override
@@ -54,6 +66,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
             }
         });
+
 
     }
 
@@ -84,9 +97,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || mode == MenuItem.CALL_CONTACT){
                 if (!(mode == MenuItem.CALL_CONTACT)) {
                     Log.i("first"," call contact ");
-                    tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
                     calMode = true;
                     mode = MenuItem.CALL_CONTACT;
+                    tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
                     break;
                 }
                 else{
@@ -102,7 +115,34 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     mode = null;
                     break;
                 }
-            }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase())){
+            }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase()) || mode == MenuItem.ADD_CONTACT){
+                if(!(mode == MenuItem.ADD_CONTACT)){
+                    Log.i("first", "add contact");
+                    mode = MenuItem.ADD_CONTACT;
+                    mode.resetState();
+                    tts.speak(getString(R.string.ask_contact_name), TextToSpeech.QUEUE_FLUSH, null);
+                    break;
+                }else{
+                    mode.changeState();
+                    switch (mode.getState()){
+                        case 1:
+                            contact = new Contact();
+                            contact.setName(s);
+                            Log.i("name", s);
+                            tts.speak(getString(R.string.ask_contact_number), TextToSpeech.QUEUE_FLUSH, null);
+                            break;
+                        case 2:
+                            contact.setNumber(s);
+                            contact.fixNumber();
+                            Log.i("tel", s);
+                            AddContactApp ac = new AddContactApp(contact, this);
+                            ac.addContact();
+                            tts.speak("Your contact is added!", TextToSpeech.QUEUE_FLUSH, null);
+                            mode = null;
+                            break;
+                    }
+
+                }
                 Log.i("menu"," add contact ");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail())){
