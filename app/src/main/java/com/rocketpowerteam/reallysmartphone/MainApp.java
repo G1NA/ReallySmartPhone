@@ -17,10 +17,11 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     Button btn;
     TextToSpeech tts;
     boolean calMode = false;
+    MenuItem mode;
 
     enum MenuItem {
-        ADD_CONTACT("add"), CALL_CONTACT("call"), PLAY_MUSIC("play music"),
-        READ_MESSAGE("read"), COMPOSE_MESSAGE("create compose");
+        ADD_CONTACT("add contact"), CALL_CONTACT("call"), PLAY_MUSIC("play music"),
+        READ_MESSAGE("read"), COMPOSE_MESSAGE("create compose"), SET_ALARM("alarm");
         String strCommand;
         MenuItem(String strCommand){
             this.strCommand = strCommand;
@@ -80,19 +81,25 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         for(String s:results){
             Log.i("res", s);
-            if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || calMode){
-                if (!calMode) {
+            if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || mode == MenuItem.CALL_CONTACT){
+                if (!(mode == MenuItem.CALL_CONTACT)) {
                     Log.i("first"," call contact ");
                     tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
                     calMode = true;
+                    mode = MenuItem.CALL_CONTACT;
                     break;
                 }
                 else{
                     MainApp m = this;
                     CallApp c = new CallApp(s, m);
-                    c.makeCall(results);
+                    if(! c.makeCall(results))
+                        //tts.speak(""); TODO EROOR MESSAGE HERE
+                    //exoume dio epiloges...na 3anarwta to onoma i na 3anagirnaei sto arxiko menou
+                        break;
+
                     Log.i("second "," call contact ");
                     calMode = false;
+                    mode = null;
                     break;
                 }
             }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase())){

@@ -26,7 +26,7 @@ public class CallApp{
         this.name = name;
     }
 
-    public void makeCall(ArrayList<String> results) {
+    public boolean makeCall(ArrayList<String> results) {
         String id;
         String con_name;
         ContentResolver cr = act.getContentResolver();
@@ -48,7 +48,9 @@ public class CallApp{
                             while (pCur.moveToNext()) {
                                 phoneNo = pCur.getString(pCur.getColumnIndex(
                                         ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            }
+                            } //TODO dn exw katalavei akrivws ti ginetai alla m fainetai oti pairneis ola ta id?
+                            //giati dn psaxneis mono gia to id tou contact pou eixes tairiasma sto onoma??
+                            //http://stackoverflow.com/questions/26823578/how-to-get-phone-number-from-a-specific-contact-in-android
                             pCur.close();
                             Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phoneNo));
                             try {
@@ -56,13 +58,15 @@ public class CallApp{
                             }
                             catch(ActivityNotFoundException e){
                                 Log.d("catch", name);
+                                return false;
                             }
                         }
-                        return;
+                        return true;
                     }
                 }
             }
         }
+        return false;
     }
 
 }
