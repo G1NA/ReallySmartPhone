@@ -145,7 +145,14 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 }
                 Log.i("menu"," add contact ");
                 break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail())){
+            }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
+                if(!(mode == MenuItem.PLAY_MUSIC)){
+                    mode = MenuItem.PLAY_MUSIC;
+                    mode.resetState();
+                    PlayMusicApp pm = new PlayMusicApp(this);
+                    pm.playMusic();
+                    mode = null;
+                }
                 Log.i("menu"," play music ");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail())){
