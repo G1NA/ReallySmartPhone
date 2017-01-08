@@ -161,14 +161,14 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 Log.i("menu"," add contact ");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
-                if(!(mode == MenuItem.PLAY_MUSIC)){
-                    mode = MenuItem.PLAY_MUSIC;
-                    mode.resetState();
-                    pm = new PlayMusicApp(this);
-                    if(!pm.playMusic())
-                        tts.speak("I am so sorry master! I could not find songs in your phone!", TextToSpeech.QUEUE_FLUSH, null);
-                    mode = null;
-                }
+
+                pm = new PlayMusicApp(this);
+                if(!pm.playMusic())
+                    tts.speak("I am so sorry master! I could not find songs in your phone!", TextToSpeech.QUEUE_FLUSH, null);
+                else
+                    tts.speak("To stop the music please say STOP", TextToSpeech.QUEUE_FLUSH, null);
+                mode = null;
+
                 Log.i("menu"," play music ");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail())){
@@ -180,7 +180,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
                 //-->dn xreiazetai na alla3eis mode edw.....
                 Log.i("menu", "stop music");
-                if (pm != null && pm.isPlaying()) {
+                if (pm!=null && pm.isPaused()) {
                     pm.stopPlayer();
                 }
                 break;

@@ -26,6 +26,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
     int current_song = 1;
     private MediaPlayer mMediaPlayer;
     boolean paused = false;
+    boolean stopped = false;
     public PlayMusicApp(AppCompatActivity mainApp) {
         m = mainApp;
     }
@@ -77,6 +78,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
                 mMediaPlayer.setOnCompletionListener(this);
                 mMediaPlayer.setOnPreparedListener(this);
                 mMediaPlayer.prepareAsync(); // prepare async to not block main thread
+                stopped = false;
             } catch (IOException e){
                 e.printStackTrace();
                 return false;
@@ -93,7 +95,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
         return true;
     }
 
-    final String MEDIA_PATH = new String("file:///sdcard");
+    final String MEDIA_PATH = new String(Environment.getExternalStorageDirectory()+"/Music");
     private ArrayList< String> songsList = new ArrayList<>();
 /*
 * LocationManager locMan = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
@@ -149,6 +151,7 @@ long time = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getTim
     public void stopPlayer(){
         mMediaPlayer.stop();
         destroyPlayer();
+        stopped = true;
     }
 
     public void destroyPlayer(){
@@ -156,7 +159,7 @@ long time = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getTim
     }
 
     public boolean isPlaying(){
-        return mMediaPlayer!=null && mMediaPlayer.isPlaying();
+        return mMediaPlayer!=null && !stopped && mMediaPlayer.isPlaying();
     }
 
     public void pause(){
@@ -186,6 +189,6 @@ long time = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getTim
     }
 
     public boolean isPaused(){
-        return paused;
+        return paused && !stopped;
     }
 }
