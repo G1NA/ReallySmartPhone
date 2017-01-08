@@ -23,9 +23,9 @@ import java.util.HashMap;
 public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     AppCompatActivity m;
-    int current_song = 0;
+    int current_song = 1;
     private MediaPlayer mMediaPlayer;
-
+    boolean paused = false;
     public PlayMusicApp(AppCompatActivity mainApp) {
         m = mainApp;
     }
@@ -73,6 +73,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
             try {
                 mMediaPlayer.setDataSource(songsList.get(current_song));
                 mMediaPlayer.setWakeMode(m.getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+                mMediaPlayer.setVolume(0.7f,0.7f);
                 mMediaPlayer.setOnCompletionListener(this);
                 mMediaPlayer.setOnPreparedListener(this);
                 mMediaPlayer.prepareAsync(); // prepare async to not block main thread
@@ -98,6 +99,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
      * and store the details in ArrayList
      * */
     public ArrayList< String> getPlayList(){
+
         File home = new File(MEDIA_PATH);
 
         if (home.listFiles(new FileExtensionFilter()).length > 0) {
@@ -113,6 +115,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         current_song++;
+        mMediaPlayer.reset();
         prepare();
     }
 
@@ -144,5 +147,39 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
 
     public void destroyPlayer(){
         if (mMediaPlayer != null) mMediaPlayer.release();
+    }
+
+    public boolean isPlaying(){
+        return mMediaPlayer!=null && mMediaPlayer.isPlaying();
+    }
+
+    public void pause(){
+        if(isPlaying()) {
+            mMediaPlayer.pause();
+            paused = true;
+        }
+    }
+
+    public void resume(){
+        if(paused) {
+            mMediaPlayer.start();
+            paused = false;
+        }
+    }
+
+    public void volumeDown(){
+        if(isPlaying()){
+            mMediaPlayer.setVolume(0.3f,0.3f);
+        }
+    }
+
+    public void volumeUp(){
+        if(isPlaying()){
+            mMediaPlayer.setVolume(0.7f,0.7f);
+        }
+    }
+
+    public boolean isPaused(){
+        return paused;
     }
 }

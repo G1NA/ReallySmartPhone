@@ -19,6 +19,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     boolean calMode = false;
     MenuItem mode;
     Contact contact;
+    private PlayMusicApp pm;
 
     enum MenuItem {
         ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
@@ -72,6 +73,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View view) {
+        if(pm.isPlaying()){
+            pm.volumeDown();
+        }
         Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"en-US");
@@ -81,6 +85,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        //TODO isws na 3ananevainei edw i fwni....
+        if(pm.isPlaying()){
+            pm.pause();
+        }
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1 && (resultCode == RESULT_OK)) {
             find_menu_action(data);
@@ -149,7 +157,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 if(!(mode == MenuItem.PLAY_MUSIC)){
                     mode = MenuItem.PLAY_MUSIC;
                     mode.resetState();
-                    PlayMusicApp pm = new PlayMusicApp(this);
                     pm.playMusic();
                     mode = null;
                 }
@@ -164,6 +171,13 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }else{
                 Log.i("else", s);
                 continue;
+            }
+        }
+
+        if(mode == null){
+            if(pm.isPaused()){
+                pm.resume();
+                pm.volumeUp();
             }
         }
     }
