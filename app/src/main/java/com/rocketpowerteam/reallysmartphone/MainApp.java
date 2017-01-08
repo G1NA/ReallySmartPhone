@@ -9,6 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -215,6 +218,15 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }
         }
         return false;
+    }
+
+    public boolean isValid(String str) {
+
+        String[] input = str.split(" ");
+
+
+        return false;
+
     }
 
 }
