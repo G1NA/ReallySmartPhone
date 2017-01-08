@@ -30,7 +30,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
         m = mainApp;
     }
 
-    public void playMusic(){
+    public boolean playMusic(){
 /*
         ContentResolver contentResolver = m.getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -54,7 +54,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
 
 */              getPlayList();
                 mMediaPlayer = new MediaPlayer();
-                prepare();
+                return prepare();
 
 
 
@@ -67,7 +67,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
 
     }
 
-    private void prepare(){
+    private boolean prepare(){
 
         if(!songsList.isEmpty() && current_song < songsList.size()) {
             try {
@@ -77,22 +77,28 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
                 mMediaPlayer.setOnCompletionListener(this);
                 mMediaPlayer.setOnPreparedListener(this);
                 mMediaPlayer.prepareAsync(); // prepare async to not block main thread
-            } catch (IOException e) {
+            } catch (IOException e){
                 e.printStackTrace();
+                return false;
             }
         }else{
             if(songsList.isEmpty()){
                 Log.e("oups", "empty list of songs");
+                return false;
             }else{
                 current_song = 0;
-                prepare();
+                return prepare();
             }
         }
+        return true;
     }
 
     final String MEDIA_PATH = new String("file:///sdcard");
     private ArrayList< String> songsList = new ArrayList<>();
-
+/*
+* LocationManager locMan = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
+long time = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getTime();
+* */
 
     /**
      * Function to read all mp3 files from sdcard

@@ -20,11 +20,12 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     MenuItem mode;
     Contact contact;
     private PlayMusicApp pm;
+    private DateTimeApp dt = new DateTimeApp(this);
 
     enum MenuItem {
         ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
         READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose", 0), SET_ALARM("alarm", 0),
-        STOP_MUSIC("stop", 0);
+        STOP_MUSIC("stop", 0), TELL_DATE("date", 0), TELL_TIME("time", 0);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
         // for example call has two states 1) ask for name 2) make call
@@ -99,6 +100,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    protected  void init(){
+        //TODO
+        //INITIALIZE ALL FIELDS THAT ARE NEEDED FOR THE APP (like dt)
+    }
     private void find_menu_action(Intent data){
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         for(String s:results){
@@ -160,7 +165,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     mode = MenuItem.PLAY_MUSIC;
                     mode.resetState();
                     pm = new PlayMusicApp(this);
-                    pm.playMusic();
+                    if(!pm.playMusic())
+                        tts.speak("I am so sorry master! I could not find songs in your phone!", TextToSpeech.QUEUE_FLUSH, null);
                     mode = null;
                 }
                 Log.i("menu"," play music ");
@@ -171,13 +177,19 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail())) {
                 Log.i("menu", " compose message ");
                 break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())){
+            }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
                 //-->dn xreiazetai na alla3eis mode edw.....
-                Log.i("menu","stop music");
-                if(pm != null && pm.isPlaying()){
+                Log.i("menu", "stop music");
+                if (pm != null && pm.isPlaying()) {
                     pm.stopPlayer();
                 }
                 break;
+            }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
+                Log.i("menu", "tell date");
+                tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
+            }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())){
+                Log.i("menu", "tell time");
+                tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
             }else{
                 Log.i("else", s);
                 continue;
