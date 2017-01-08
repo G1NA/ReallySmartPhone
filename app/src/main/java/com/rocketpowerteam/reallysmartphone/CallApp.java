@@ -26,21 +26,27 @@ public class CallApp {
     public boolean makeCall(ArrayList<String> results) {
 
         String con_name;
-        Cursor cur = act.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null);
-        if(cur == null)
+        Cursor cur = act.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,new String[]{
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER }, null, null, null);
+        if(cur == null) {
+            Log.i("empty","cur null");
             return false;
-        String phoneNo = "55555";
+        }
+        String phoneNo = "";
 
         for(String s:results) {
             Log.d("NAME", s);
             if (cur.getCount() > 0) {
-                cur.moveToFirst();
                 while (cur.moveToNext()) {
-                    con_name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                    phoneNo = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    phoneNo = cur.getString(1);
+                    con_name = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    Log.d("c_name", con_name);
                     if (name.toLowerCase().equals(con_name.toLowerCase())) {
-                        phoneNo = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        callContact(phoneNo);
+                       if(callContact("tel:"+phoneNo))
+                           return true;
+                       else
+                           continue;
                     }
                 }
 
@@ -49,14 +55,16 @@ public class CallApp {
         return false;
     }
 
-    private void callContact(String phoneNo){
+    private boolean callContact(String phoneNo){
         Intent callIntent = new Intent((Intent.ACTION_CALL), Uri.parse(phoneNo));
         try {
             act.startActivity(callIntent);
             Log.d("it s ok","");
+            return true;
         }
         catch(ActivityNotFoundException e){
             Log.d("catch", name);
+            return false;
         }
     }
 

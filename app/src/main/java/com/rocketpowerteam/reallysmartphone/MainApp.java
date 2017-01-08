@@ -74,7 +74,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View view) {
-        if(pm.isPlaying()){
+        if(pm != null && pm.isPlaying()){
             pm.volumeDown();
         }
         Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -87,7 +87,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         //TODO isws na 3ananevainei edw i fwni....
-        if(pm.isPlaying()){
+        if(pm != null && pm.isPlaying()){
             pm.pause();
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -115,9 +115,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     MainApp m = this;
                     CallApp c = new CallApp(s, m);
                     if(! c.makeCall(results))
+                        tts.speak("I am so sorry. I could not find your contact master!", TextToSpeech.QUEUE_FLUSH, null);
                         //tts.speak(""); TODO EROOR MESSAGE HERE
                     //exoume dio epiloges...na 3anarwta to onoma i na 3anagirnaei sto arxiko menou
-                        break;
+
 
                     Log.i("second "," call contact ");
                     calMode = false;
@@ -158,6 +159,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 if(!(mode == MenuItem.PLAY_MUSIC)){
                     mode = MenuItem.PLAY_MUSIC;
                     mode.resetState();
+                    pm = new PlayMusicApp(this);
                     pm.playMusic();
                     mode = null;
                 }
@@ -172,7 +174,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())){
                 //-->dn xreiazetai na alla3eis mode edw.....
                 Log.i("menu","stop music");
-                if(pm.isPlaying()){
+                if(pm != null && pm.isPlaying()){
                     pm.stopPlayer();
                 }
                 break;
@@ -183,7 +185,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         }
 
         if(mode == null){
-            if(pm.isPaused()){
+            if(pm!=null && pm.isPaused()){
                 pm.resume();
                 pm.volumeUp();
             }

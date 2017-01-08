@@ -90,7 +90,7 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
         }
     }
 
-    final String MEDIA_PATH = new String(Environment.getExternalStorageDirectory().getPath()+ "/Music");
+    final String MEDIA_PATH = new String("file:///sdcard");
     private ArrayList< String> songsList = new ArrayList<>();
 
 
@@ -101,8 +101,8 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
     public ArrayList< String> getPlayList(){
 
         File home = new File(MEDIA_PATH);
-
-        if (home.listFiles(new FileExtensionFilter()).length > 0) {
+        File[] mp3files = home.listFiles(new FileExtensionFilter());
+        if (mp3files!=null && mp3files.length > 0) {
             for (File file : home.listFiles(new FileExtensionFilter())) {
                 // Adding each song to SongList
                 songsList.add(file.getPath());

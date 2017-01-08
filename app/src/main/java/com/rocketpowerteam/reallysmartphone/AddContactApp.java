@@ -83,7 +83,7 @@ public class AddContactApp {
         cntProOper.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)//Step2
                 .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,contactIndex)
                 .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, c.getName()) // Name of the contact
+                .withValue(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, c.getName()) // Name of the contact
                 .build());
         Log.i("second attempt", "");
         //Mobile number will be inserted in ContactsContract.Data table
