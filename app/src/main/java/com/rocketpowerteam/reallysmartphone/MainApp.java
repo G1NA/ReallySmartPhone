@@ -255,9 +255,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
                 CallApp c = new CallApp(this);
                 if(c.makeCall(Contact.POLICE)) {
-                    tts.speak("Please stay calm!", TextToSpeech.QUEUE_FLUSH, null);
+                    tts.speak(getString(R.string.calm), TextToSpeech.QUEUE_FLUSH, null);
                 }else{
-                    tts.speak("You are so unlucky today! I cannot call the police! I am really sorry master!",
+                    tts.speak(getString(R.string.unlucky),
                             TextToSpeech.QUEUE_FLUSH, null);
                 }
 
