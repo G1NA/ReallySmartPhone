@@ -33,8 +33,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
-        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 3),
-        STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 0);
+        READ_MESSAGE("read", 1), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 3),
+        STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 1);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
                             // for example call has two states 1) ask for name 2) make call
