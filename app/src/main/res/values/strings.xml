@@ -23,6 +23,7 @@
     <string name= "stop_music">To stop the music please say STOP</string>
     <string name= "failed_to_find_songs">"I am so sorry master! I could not find songs in your phone</string>
     <string name= "contact_to_call_missing">I am so sorry I cannot find a contact with this name! Please try again</string>
+    <string name= "composed_message">"Your message is composed! I will make my best to deliver it!"</string>
     <string name="menu">You have plenty of choices master! You can ask me to set an alarm for you, add you a contact,
     make a call, play music for you, tell you the date, tell you the time and even read or compose a message for you!
         Either case I will make my best to guide you enough and help you keep up with the process! Now that you know

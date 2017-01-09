@@ -11,14 +11,8 @@ import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 public final class MainApp extends AppCompatActivity implements View.OnClickListener{
@@ -222,7 +216,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             if(phoneNo != null) {
                                 tts.speak(getString(R.string.tell_body_message), TextToSpeech.QUEUE_FLUSH, null);
                             }else {
-                                tts.speak("I am so sorry! I could not find your contact master", TextToSpeech.QUEUE_FLUSH, null);
+                                tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
                                 mode = null;
                             }
                             break;
@@ -231,25 +225,22 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             MessageApp ma = new MessageApp(this);
                             //ma.sendMessage(new Message(s,contact));
                             ma.sendLongSMS();
-                            tts.speak("Your message is composed! I will make my best to deliver it!", TextToSpeech.QUEUE_FLUSH, null);
+                            tts.speak(getString(R.string.composed_message), TextToSpeech.QUEUE_FLUSH, null);
                             mode = null;
                             break;
                     }
                     break;
                 }
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
-                Log.i("menu", "tell date");
                 tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())) {
-                Log.i("menu", "tell time");
                 tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
                 if(!(mode == MenuItem.SET_ALARM)){
                     tts.speak(getString(R.string.ask_time_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
                     mode = MenuItem.SET_ALARM;
-                    Log.d("set alarm", "");
                 }else{
                     alarm = new Alarm(DateTimeApp.getTime(s), this);
                     alarm.setAlarm();
@@ -257,12 +248,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 }
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
-                Log.i("menu", "explain menu");
                 tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
-
-                Log.i("menu","help");
                 CallApp c = new CallApp(this);
                 if(c.makeCall(Contact.POLICE)) {
                     tts.speak("Please stay calm!", TextToSpeech.QUEUE_FLUSH, null);
