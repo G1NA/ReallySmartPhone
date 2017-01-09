@@ -55,7 +55,7 @@ public class MessageApp {
                 cursor.close();
             }
         }
-        l.add("sam said blah");
+        l.add("Sam said Hello! on Saturday tenth of October 2017");
         return l;
     }
 
