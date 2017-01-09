@@ -2,6 +2,7 @@ package com.rocketpowerteam.reallysmartphone;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -205,9 +206,48 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 mes.readMessages();
                 Log.i("menu"," read message");
                 break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail())) {
+            }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail()) || mode == MenuItem.COMPOSE_MESSAGE) {
                 Log.i("menu", " compose message ");
-                break;
+                if (!(mode == MenuItem.COMPOSE_MESSAGE)) {
+                    Log.i("first"," compose message ");
+                    mode = MenuItem.COMPOSE_MESSAGE;
+                    mode.resetState();
+                    tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
+                    break;
+                }
+                else{
+                    mode.changeState();
+                    switch (mode.getState()){
+                        case 1:
+                            contact = new Contact();
+                            Cursor cur = Contact.getContacts(this);
+                            String phoneNo = null;
+                            for(String name:results) {
+                                phoneNo = Contact.getContactNumber(s,cur);
+                                if(phoneNo != null) {
+                                    contact.setName(s);
+                                    contact.setNumber(phoneNo);
+                                    break;
+                                }
+                            }
+
+                            if(phoneNo != null) {
+                                tts.speak("OK! Now please tell me what your message will say!", TextToSpeech.QUEUE_FLUSH, null);
+                            }else {
+                                tts.speak("I am so sorry! I could not find your contact master", TextToSpeech.QUEUE_FLUSH, null);
+                                mode = null;
+                            }
+                            break;
+                        case 2:
+                            Log.i("message", s);
+                            MessageApp ma = new MessageApp(this);
+                            ma.sendMessage(new Message(s,contact));
+                            tts.speak("Your message is composed! I will make my best to deliver it!", TextToSpeech.QUEUE_FLUSH, null);
+                            mode = null;
+                            break;
+                    }
+                    break;
+                }
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
                 Log.i("menu", "tell date");
                 tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
