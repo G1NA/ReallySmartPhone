@@ -1,13 +1,12 @@
 package com.rocketpowerteam.reallysmartphone;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.database.Cursor;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -15,59 +14,61 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Random;
 
 /**
  * Created by gina4_000 on 7/1/2017.
  */
-public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, FilenameFilter  {
 
     AppCompatActivity m;
-    int current_song = 1;
+    int current_song = 0;
     private MediaPlayer mMediaPlayer;
     boolean paused = false;
     boolean stopped = false;
+
+    //final String[] MEDIA_PATHS = {Environment.getExternalStorageDirectory()+"/Music"," /storage/sdcard0/Music","/sdcard","/sdcard/Downloads"};
+    private ArrayList< String> songsList = new ArrayList<>();
+
     public PlayMusicApp(AppCompatActivity mainApp) {
         m = mainApp;
     }
 
     public boolean playMusic(){
-/*
-        ContentResolver contentResolver = m.getContentResolver();
-        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = contentResolver.query(uri, null, null, null, null);
-        if (cursor == null) {
-            // query failed, handle error.
-        } else if (!cursor.moveToFirst()) {
-            // no media on the device
-        } else {
-            int titleColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
-            do {
-                long thisId = cursor.getLong(idColumn);
-                String thisTitle = cursor.getString(titleColumn);
-                // ...process entry...
-                //
-                long id = thisId/* retrieve it from somewhere ;
-                Uri contentUri = ContentUris.withAppendedId(
-                        android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
-
-
-*/              getPlayList();
-                mMediaPlayer = new MediaPlayer();
-                return prepare();
-
-
-
-  /*
-        /** Called when MediaPlayer is ready
-       } while (cursor.moveToNext());
-        }*/
-
-// ...prepare and start...
-
+        getPlayList();
+        mMediaPlayer = new MediaPlayer();
+        return prepare();
     }
 
+    /*
+    *
+    * ContentResolver cr = getActivity().getContentResolver();
+
+Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
+String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+Cursor cur = cr.query(uri, null, selection, null, sortOrder);
+int count = 0;
+
+if(cur != null)
+{
+    count = cur.getCount();
+
+    if(count > 0)
+    {
+        while(cur.moveToNext())
+        {
+            String data = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.DATA));
+            // Add code to get more column here
+
+            // Save to your list here
+        }
+
+    }
+}
+
+cur.close();*/
     private boolean prepare(){
 
         if(!songsList.isEmpty() && current_song < songsList.size()) {
@@ -94,30 +95,48 @@ public class PlayMusicApp implements MediaPlayer.OnPreparedListener,MediaPlayer.
         }
         return true;
     }
-
-    final String MEDIA_PATH = new String(Environment.getExternalStorageDirectory()+"/Music");
-    private ArrayList< String> songsList = new ArrayList<>();
-/*
-* LocationManager locMan = (LocationManager) activity.getSystemService(activity.LOCATION_SERVICE);
-long time = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getTime();
-* */
-
     /**
      * Function to read all mp3 files from sdcard
      * and store the details in ArrayList
      * */
-    public ArrayList< String> getPlayList(){
+    public void getPlayList(){
+        ContentResolver cr = m.getContentResolver();
 
-        File home = new File(MEDIA_PATH);
-        File[] mp3files = home.listFiles(new FileExtensionFilter());
-        if (mp3files!=null && mp3files.length > 0) {
-            for (File file : home.listFiles(new FileExtensionFilter())) {
-                // Adding each song to SongList
-                songsList.add(file.getPath());
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
+        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+        Cursor cur = cr.query(uri, null, selection, null, sortOrder);
+        int count = 0;
+
+        if(cur != null)
+        {
+            count = cur.getCount();
+
+            if(count > 0)
+            {
+                while(cur.moveToNext())
+                {
+                    String data = cur.getString(cur.getColumnIndex(MediaStore.Audio.Media.DATA));
+                    songsList.add(data);
+                }
+
             }
         }
-        // return songs list array
-        return songsList;
+
+        cur.close();
+/*
+        for(String media_path : MEDIA_PATHS) {
+            File home = new File(media_path);
+            File[] mp3files = home.listFiles(this);
+            if (mp3files != null && mp3files.length > 0) {
+                for (File file : home.listFiles(this)) {
+                    // Adding each song to SongList
+                    songsList.add(file.getPath());
+                }
+            }
+        }*/
+        long seed = System.nanoTime();
+        Collections.shuffle(songsList, new Random(seed));
     }
 
     @Override
@@ -127,14 +146,9 @@ long time = locMan.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getTim
         prepare();
     }
 
-    /**
-     * Class to filter files which are having .mp3 extension
-     * */
-    //you can choose the filter for me i put .mp3
-    class FileExtensionFilter implements FilenameFilter {
-        public boolean accept(File dir, String name) {
-            return (name.endsWith(".mp3") || name.endsWith(".MP3"));
-        }
+    @Override
+    public boolean accept(File file, String name) {
+        return (name.endsWith(".mp3") || name.endsWith(".MP3"));
     }
 
 

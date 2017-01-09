@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -17,7 +18,7 @@ import java.util.Locale;
 
 public final class MainApp extends AppCompatActivity implements View.OnClickListener{
 
-    Button btn;
+    ImageButton btn;
     TextToSpeech tts;
     boolean calMode = false;
     MenuItem mode;
@@ -53,7 +54,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        btn = (Button) findViewById(R.id.talktome);
+        btn = (ImageButton) findViewById(R.id.talktome);
         btn.setOnClickListener(this);
         tts = new TextToSpeech(MainApp.this, new TextToSpeech.OnInitListener(){
 
@@ -163,6 +164,13 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 }
                 Log.i("menu"," add contact ");
                 break;
+            }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
+                //-->dn xreiazetai na alla3eis mode edw.....
+                Log.i("menu", "stop music");
+                if (pm!=null && pm.isPaused()) {
+                    pm.stopPlayer();
+                }
+                break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
 
                 pm = new PlayMusicApp(this);
@@ -174,18 +182,13 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
                 Log.i("menu"," play music ");
                 break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail())){
+            }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
+                MessageApp mes = new MessageApp(this);
+                mes.readMessages();
                 Log.i("menu"," read message");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail())) {
                 Log.i("menu", " compose message ");
-                break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
-                //-->dn xreiazetai na alla3eis mode edw.....
-                Log.i("menu", "stop music");
-                if (pm!=null && pm.isPaused()) {
-                    pm.stopPlayer();
-                }
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
                 Log.i("menu", "tell date");

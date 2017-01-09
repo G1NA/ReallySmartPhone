@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
@@ -12,11 +13,12 @@
     android:weightSum="1"
     android:orientation="vertical">
 
-    <Button
+    <ImageButton
         android:layout_width="match_parent"
-        android:layout_height="0px"
+        android:layout_height="fill_parent"
+        app:srcCompat="@drawable/mic"
         android:id="@+id/talktome"
-        android:layout_weight="0.1"
-        android:text="Tap to talk"/>
+        android:scaleType="fitXY" />
+
 
 </LinearLayout>
