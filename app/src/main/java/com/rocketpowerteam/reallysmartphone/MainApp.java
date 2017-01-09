@@ -27,9 +27,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     private DateTimeApp dt = new DateTimeApp(this);
 
     enum MenuItem {
-        ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
+        EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
         READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose", 0), SET_ALARM("alarm", 0),
-        STOP_MUSIC("stop", 0), TELL_DATE("date", 0), TELL_TIME("time", 0);
+        STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
         // for example call has two states 1) ask for name 2) make call
@@ -160,7 +160,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             mode = null;
                             break;
                     }
-
                 }
                 Log.i("menu"," add contact ");
                 break;
@@ -193,9 +192,18 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
                 Log.i("menu", "tell date");
                 tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
-            }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())){
+                break;
+            }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())) {
                 Log.i("menu", "tell time");
                 tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
+                break;
+            }else if(checkCommand(s.toLowerCase(), MenuItem.SET_ALARM.getDetail())) {
+                Log.i("menu", "set alarm");
+                break;
+            }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())){
+                Log.i("menu", "explain menu");
+                tts.speak(getString(R.string.menu),TextToSpeech.QUEUE_FLUSH,null);
+                break;
             }else{
                 Log.i("else", s);
                 continue;
