@@ -251,11 +251,13 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                         case 1:
                             hour = s;
                             tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                            break;
                         case 2:
                             minutes = s;
                             alarm = new Alarm(hour, minutes, this);
                             alarm.setAlarm();
                             mode = null;
+                            break;
                     }
                 }
                 break;
