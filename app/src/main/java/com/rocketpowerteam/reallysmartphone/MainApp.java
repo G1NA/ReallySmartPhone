@@ -28,10 +28,12 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     private DateTimeApp dt = new DateTimeApp(this);
     private boolean hasNetworkConnection = false;
     private int clickCount = 0;
+    private String hour;
+    private String minutes;
 
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
-        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 2),
+        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 3),
         STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 0);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
@@ -239,12 +241,20 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
                 if(!(mode == MenuItem.SET_ALARM)){
-                    tts.speak(getString(R.string.ask_time_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                    tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
                     mode = MenuItem.SET_ALARM;
-                }else{
-                    alarm = new Alarm(DateTimeApp.getTime(s), this);
-                    alarm.setAlarm();
-                    mode = null;
+                }else {
+                    mode.changeState();
+                    switch (mode.getState()) {
+                        case 1:
+                            hour = s;
+                            tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                        case 2:
+                            minutes = s;
+                            alarm = new Alarm(hour, minutes, this);
+                            alarm.setAlarm();
+                            mode = null;
+                    }
                 }
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {

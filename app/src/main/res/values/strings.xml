@@ -9,7 +9,8 @@
     <string name= "ask_contact_to_call">Who would you want me to call?</string>
     <string name= "ask_contact_to_send_message">To whom would you like me to send message?</string>
     <string name= "ask_date_for_alarm">What date do you want the alarm to be set?</string>
-    <string name= "ask_time_for_alarm">What time do you want the alarm to be set?</string>
+    <string name= "ask_hour_for_alarm">What hour do you want the alarm to be set?</string>
+    <string name= "ask_minutes_for_alarm">What minutes do you want the alarm to be set?</string>
     <string name= "wrong_time_and_date">I did not get it master,can you repeat it?</string>
     <string name= "alarm_confirmed">Ok master, i set the alarm at</string>
     <string name= "tell_body_message">What do you want me to send?</string>
