@@ -21,6 +21,10 @@ public class CallApp {
         this.act = act;
     }
 
+    public boolean makeCall(Contact c){
+        return callContact(c.getNumber());
+    }
+
     public boolean makeCall(ArrayList<String> results) {
 
         String con_name;

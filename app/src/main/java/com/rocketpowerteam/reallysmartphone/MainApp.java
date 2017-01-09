@@ -93,7 +93,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         clickCount++;
         if(!hasNetworkConnection && clickCount == 2){
-            enableNetworkConnection();
+            hasNetworkConnection = enableNetworkConnection();
             clickCount = 0;
         }else {
             if (pm != null && pm.isPlaying()) {
@@ -233,6 +233,15 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
 
+                Log.i("menu","help");
+                CallApp c = new CallApp(this);
+                if(c.makeCall(Contact.POLICE)) {
+                    tts.speak("Please stay calm!", TextToSpeech.QUEUE_FLUSH, null);
+                }else{
+                    tts.speak("You are so unlucky today! I cannot call the police! I am really sorry master!",
+                            TextToSpeech.QUEUE_FLUSH, null);
+                }
+
             }else{
                 Log.i("else", s);
                 continue;
@@ -271,7 +280,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         return isAvailable;
     }
 
-    private void enableNetworkConnection() {
+    private boolean enableNetworkConnection() {
+        return false;
     }
 
 }
