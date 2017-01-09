@@ -51,7 +51,7 @@ public class MessageApp {
         }
     }
 
-    public boolean composeMessage(String contact_name, String body){
+    public boolean sendMessage(Message m){
         //http://stackoverflow.com/questions/8578689/sending-text-messages-programmatically-in-android
         //TODO
         return false;
