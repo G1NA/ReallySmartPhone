@@ -319,6 +319,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         return false;
     }
 
+
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
