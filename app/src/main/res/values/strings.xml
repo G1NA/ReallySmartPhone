@@ -7,9 +7,21 @@
     <string name= "ask_contact_name">Ok! Please tell me the contact name.</string>
     <string name= "ask_contact_number">Thats fine! Now tell me the contact number.</string>
     <string name= "ask_contact_to_call">Who would you want me to call?</string>
+    <string name= "ask_contact_to_send_message">To whom would you like me to send message?</string>
     <string name= "ask_date_for_alarm">What date do you want the alarm to be set?</string>
     <string name= "ask_time_for_alarm">What time do you want the alarm to be set?</string>
     <string name= "wrong_time_and_date">I did not get it master,can you repeat it?</string>
+    <string name= "alarm_confirmed">Ok master, i set the alarm at</string>
+    <string name= "tell_body_message">What do you want me to send?</string>
+    <string name= "no_messages">You have no messages, sorry for that master.</string>
+    <string name= "send_message_confirmed">Your message hs been sent master</string>
+    <string name= "failed_to_find_contact">"I am so sorry. I could not find your contact master!"</string>
+    <string name= "unavailable_network">However I need Internet in order to understand you." +
+    "Right now your Internet connection is disabled. So please tap on screen twice in order" +
+    "to allow me enable it and make our conversation far more enjoyable!</string>
+    <string name= "added_contact">Your contact is added!</string>
+    <string name= "stop_music">To stop the music please say STOP</string>
+    <string name= "failed_to_find_songs">"I am so sorry master! I could not find songs in your phone</string>
     <string name= "contact_to_call_missing">I am so sorry I cannot find a contact with this name! Please try again</string>
     <string name="menu">You have plenty of choices master! You can ask me to set an alarm for you, add you a contact,
     make a call, play music for you, tell you the date, tell you the time and even read or compose a message for you!

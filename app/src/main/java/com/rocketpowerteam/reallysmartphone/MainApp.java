@@ -23,23 +23,24 @@ import java.util.Locale;
 
 public final class MainApp extends AppCompatActivity implements View.OnClickListener{
 
-    ImageButton btn;
-    TextToSpeech tts;
+    private ImageButton btn;
+    private TextToSpeech tts;
     boolean calMode = false;
-    MenuItem mode;
-    Contact contact;
-    Alarm alarm;
+    private MenuItem mode;
+    private Contact contact;
+    private Alarm alarm;
     private PlayMusicApp pm;
     private DateTimeApp dt = new DateTimeApp(this);
     private boolean hasNetworkConnection = false;
+    private int clickCount = 0;
 
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
-        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose", 0), SET_ALARM("alarm", 2),
+        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 2),
         STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 0);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
-        // for example call has two states 1) ask for name 2) make call
+                            // for example call has two states 1) ask for name 2) make call
         int max_state;
         MenuItem(String strCommand, int max_state)
         {
@@ -72,23 +73,17 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     if(res == TextToSpeech.LANG_NOT_SUPPORTED || res == TextToSpeech.LANG_MISSING_DATA){
                         Log.e("TTS", "Language is not supported");
                     }
-                    String net_string = isNetworkAvailable()? "However I need Internet in order to understand you." +
-                            "Right now your Internet connection is disabled. So please tap on screen twice in order" +
-                            "to allow me enable it and make our conversation far more enjoyable!" : "";
-                    tts.speak(getString(R.string.app_prompt)+net_string,TextToSpeech.QUEUE_FLUSH,null);
-                    Log.i("network on:", isNetworkAvailable()?"yes":"no");
-                    //tts.setSpeechRate(0.8f);
+
+                    String net_string = isNetworkAvailable() ? "" : getString(R.string.unavailable_network);
+                    tts.speak(getString(R.string.app_prompt) + net_string, TextToSpeech.QUEUE_FLUSH, null);
                 }else{
                     Log.e("TTS","Init failed");
                 }
-
             }
         });
-
-
     }
 
-    private int clickCount = 0;
+
 
     @Override
     public void onClick(View view) {
@@ -103,7 +98,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
-            i.putExtra(RecognizerIntent.EXTRA_PROMPT, "Tap and talk baby!");
+            i.putExtra(RecognizerIntent.EXTRA_PROMPT, "Talk");
             startActivityForResult(i, 1);
         }
     }
@@ -134,7 +129,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             Log.i("res", s);
             if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || mode == MenuItem.CALL_CONTACT){
                 if (!(mode == MenuItem.CALL_CONTACT)) {
-                    Log.i("first"," call contact ");
                     calMode = true;
                     mode = MenuItem.CALL_CONTACT;
                     tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
@@ -144,19 +138,13 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     MainApp m = this;
                     CallApp c = new CallApp(m);
                     if(! c.makeCall(results))
-                        tts.speak("I am so sorry. I could not find your contact master!", TextToSpeech.QUEUE_FLUSH, null);
-                    //tts.speak(""); TODO EROOR MESSAGE HERE
-                    //exoume dio epiloges...na 3anarwta to onoma i na 3anagirnaei sto arxiko menou
-
-
-                    Log.i("second "," call contact ");
+                        tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
                     calMode = false;
                     mode = null;
                     break;
                 }
             }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase()) || mode == MenuItem.ADD_CONTACT){
                 if(!(mode == MenuItem.ADD_CONTACT)){
-                    Log.i("first", "add contact");
                     mode = MenuItem.ADD_CONTACT;
                     mode.resetState();
                     tts.speak(getString(R.string.ask_contact_name), TextToSpeech.QUEUE_FLUSH, null);
@@ -167,43 +155,43 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                         case 1:
                             contact = new Contact();
                             contact.setName(s);
-                            Log.i("name", s);
                             tts.speak(getString(R.string.ask_contact_number), TextToSpeech.QUEUE_FLUSH, null);
                             break;
                         case 2:
                             contact.setNumber(s);
                             contact.fixNumber();
-                            Log.i("tel", s);
                             AddContactApp ac = new AddContactApp(contact, this);
                             ac.addContact();
-                            tts.speak("Your contact is added!", TextToSpeech.QUEUE_FLUSH, null);
+                            tts.speak(getString(R.string.added_contact), TextToSpeech.QUEUE_FLUSH, null);
                             mode = null;
                             break;
                     }
                 }
-                Log.i("menu"," add contact ");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
-                //-->dn xreiazetai na alla3eis mode edw.....
-                Log.i("menu", "stop music");
-                if (pm!=null && pm.isPaused()) {
+                if (pm!=null && pm.isPaused())
                     pm.stopPlayer();
-                }
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
-
                 pm = new PlayMusicApp(this);
                 if(!pm.playMusic())
-                    tts.speak("I am so sorry master! I could not find songs in your phone!", TextToSpeech.QUEUE_FLUSH, null);
+                    tts.speak(getString(R.string.failed_to_find_songs), TextToSpeech.QUEUE_FLUSH, null);
                 else
-                    tts.speak("To stop the music please say STOP", TextToSpeech.QUEUE_FLUSH, null);
+                    tts.speak(getString(R.string.stop_music), TextToSpeech.QUEUE_FLUSH, null);
                 mode = null;
-
-                Log.i("menu"," play music ");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
                 MessageApp mes = new MessageApp(this);
-                mes.readMessages();
+                if(mes.readMessages().size() == 0){
+                    tts.speak(getString(R.string.no_messages), TextToSpeech.QUEUE_FLUSH, null);
+                }
+                else{
+                    for(String message: mes.readMessages()){
+                        tts.speak("Message from" , TextToSpeech.QUEUE_FLUSH, null); //contact
+                        tts.speak("on " , TextToSpeech.QUEUE_FLUSH, null);//date?
+                        tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                    }
+                }
                 Log.i("menu"," read message");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail()) || mode == MenuItem.COMPOSE_MESSAGE) {
@@ -212,7 +200,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     Log.i("first"," compose message ");
                     mode = MenuItem.COMPOSE_MESSAGE;
                     mode.resetState();
-                    tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
+                    tts.speak(getString(R.string.ask_contact_to_send_message), TextToSpeech.QUEUE_FLUSH, null);
                     break;
                 }
                 else{
@@ -232,7 +220,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             }
 
                             if(phoneNo != null) {
-                                tts.speak("OK! Now please tell me what your message will say!", TextToSpeech.QUEUE_FLUSH, null);
+                                tts.speak(getString(R.string.tell_body_message), TextToSpeech.QUEUE_FLUSH, null);
                             }else {
                                 tts.speak("I am so sorry! I could not find your contact master", TextToSpeech.QUEUE_FLUSH, null);
                                 mode = null;
@@ -241,7 +229,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                         case 2:
                             Log.i("message", s);
                             MessageApp ma = new MessageApp(this);
-                            ma.sendMessage(new Message(s,contact));
+                            //ma.sendMessage(new Message(s,contact));
+                            ma.sendLongSMS();
                             tts.speak("Your message is composed! I will make my best to deliver it!", TextToSpeech.QUEUE_FLUSH, null);
                             mode = null;
                             break;

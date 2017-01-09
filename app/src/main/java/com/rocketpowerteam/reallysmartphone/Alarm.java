@@ -47,6 +47,7 @@ public class Alarm {
         alarm.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
         act.startActivity(alarm);
 
+
     }
 
 }

@@ -18,10 +18,10 @@ public class Contact {
     public static Contact POLICE = new Contact("police","100");
     public static Contact FIRE_DEPARTMENT = new Contact("fire department","199");
 
-    String name;
-    String number;
-    Pattern digits = Pattern.compile("[0-9]*");
-    Pattern numbers = Pattern.compile("zero|one|two|three|four|five|six|seven|eight|nine");
+    private String name;
+    private String number;
+    private Pattern digits = Pattern.compile("[0-9]*");
+    private Pattern numbers = Pattern.compile("zero|one|two|three|four|five|six|seven|eight|nine");
 
     public Contact(){
     }
