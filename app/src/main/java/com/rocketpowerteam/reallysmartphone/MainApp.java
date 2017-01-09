@@ -53,6 +53,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         public int getState(){ return this.inner_state; }
 
         public void resetState() { this.inner_state = 0; }
+
+        public void repeat() {
+            inner_state--;
+        }
     }
 
     @Override
@@ -128,7 +132,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     calMode = true;
                     mode = MenuItem.CALL_CONTACT;
                     tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
-                    i --;
                     break;
                 }
                 else{
@@ -160,8 +163,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             i --;
                             break;
                         case 2:
-                            contact.setNumber(s);
-                            contact.fixNumber();
+                            contact.setNumber(NumFixer.fixNumber(s));
                             AddContactApp ac = new AddContactApp(contact, this);
                             ac.addContact();
                             tts.speak(getString(R.string.added_contact), TextToSpeech.QUEUE_FLUSH, null);
@@ -170,12 +172,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             break;
                     }
                 }
-                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
                 if (pm!=null && pm.isPaused())
                     pm.stopPlayer();
-                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
                 pm = new PlayMusicApp(this);
@@ -184,7 +184,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 else
                     tts.speak(getString(R.string.stop_music), TextToSpeech.QUEUE_FLUSH, null);
                 mode = null;
-                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
                 MessageApp mes = new MessageApp(this);
@@ -198,14 +197,12 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                         tts.speak(message , TextToSpeech.QUEUE_FLUSH, null);
                     }
                 }
-                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail()) || mode == MenuItem.COMPOSE_MESSAGE) {
                 if (!(mode == MenuItem.COMPOSE_MESSAGE)) {
                     mode = MenuItem.COMPOSE_MESSAGE;
                     mode.resetState();
                     tts.speak(getString(R.string.ask_contact_to_send_message), TextToSpeech.QUEUE_FLUSH, null);
-                    i --;
                     break;
                 }
                 else{
@@ -220,7 +217,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 if(phoneNo != null) {
                                     contact.setName(name);
                                     contact.setNumber(phoneNo);
-                                    i --;
                                     break;
                                 }
                             }
@@ -231,6 +227,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
                                 mode = null;
                             }
+                            i--;
                             break;
                         case 2:
                             MessageApp ma = new MessageApp(this);
@@ -241,36 +238,55 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             i --;
                             break;
                     }
-                    i --;
                     break;
                 }
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
                 tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
-                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())) {
                 tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
-                i --;
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
                 if(!(mode == MenuItem.SET_ALARM)){
                     tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
                     mode = MenuItem.SET_ALARM;
-                    i --;
                     break;
                 }else {
                     mode.changeState();
                     switch (mode.getState()) {
                         case 1:
-                            hour = s;
-                            tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                            hour = "";
+                            for(String token : results){
+                                hour = NumFixer.fixNumber(token);
+                                if(!hour.equals(""))
+                                    break;
+                            }
+
+                            if(hour.equals("")){
+                                tts.speak(getString(R.string.wrong_hour),TextToSpeech.QUEUE_FLUSH,null);
+                                mode.repeat();
+                            }else {
+                                tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                            }
+
                             i --;
                             break;
                         case 2:
-                            minutes = s;
-                            alarm = new Alarm(hour, minutes, this);
-                            alarm.setAlarm();
-                            mode = null;
+                            minutes = "";
+                            for(String token : results){
+                                minutes = NumFixer.fixNumber(token);
+                                if(!minutes.equals(""))
+                                    break;
+                            }
+
+                            if(minutes.equals("")){
+                                tts.speak(getString(R.string.wrocng_minute),TextToSpeech.QUEUE_FLUSH,null);
+                                mode.repeat();
+                            }else {
+                                alarm = new Alarm(hour, minutes, this);
+                                alarm.setAlarm();
+                                mode = null;
+                            }
                             i --;
                             break;
                     }
@@ -278,7 +294,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 }
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
                 tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
-                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
                 CallApp c = new CallApp(this);

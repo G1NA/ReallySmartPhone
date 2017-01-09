@@ -34,4 +34,6 @@
     <string name="wifi_enabled">Your Wifi is enabled!</string>
     <string name="calm">Please stay calm!</string>
     <string name="unlucky">You are so unlucky today! I cannot call the police! I am really sorry master!</string>
+    <string name="wrong_hour">I could not understand the hour. Can you repeat it master?</string>
+    <string name="wrocng_minute">I could not understand the minutes. Can you repeat it master?</string>
 </resources>
