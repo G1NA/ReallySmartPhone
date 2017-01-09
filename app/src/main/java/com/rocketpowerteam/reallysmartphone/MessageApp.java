@@ -25,7 +25,7 @@ public class MessageApp {
         Cursor cursor = m.getContentResolver().query(
                 SMS_INBOX_CONTENT_URI,
                 new String[] { "person", "date", "body" },
-                WHERE_CONDITION,
+                null,
                 null,
                 SORT_ORDER);
 

@@ -33,7 +33,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
         READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose", 0), SET_ALARM("alarm", 2),
-        STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1);
+        STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 0);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
         // for example call has two states 1) ask for name 2) make call
@@ -69,7 +69,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     if(res == TextToSpeech.LANG_NOT_SUPPORTED || res == TextToSpeech.LANG_MISSING_DATA){
                         Log.e("TTS", "Language is not supported");
                     }
-                    tts.speak(getString(R.string.app_prompt),TextToSpeech.QUEUE_FLUSH,null);
+                    String net_string = isNetworkAvailable()? "However I need Internet in order to understand you." +
+                            "Right now your Internet connection is disabled. So please tap on screen twice in order" +
+                            "to allow me enable it and make our conversation far more enjoyable!" : "";
+                    tts.speak(getString(R.string.app_prompt)+net_string,TextToSpeech.QUEUE_FLUSH,null);
                     Log.i("network on:", isNetworkAvailable()?"yes":"no");
                     //tts.setSpeechRate(0.8f);
                 }else{
@@ -127,7 +130,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 }
                 else{
                     MainApp m = this;
-                    CallApp c = new CallApp(s, m);
+                    CallApp c = new CallApp(m);
                     if(! c.makeCall(results))
                         tts.speak("I am so sorry. I could not find your contact master!", TextToSpeech.QUEUE_FLUSH, null);
                     //tts.speak(""); TODO EROOR MESSAGE HERE

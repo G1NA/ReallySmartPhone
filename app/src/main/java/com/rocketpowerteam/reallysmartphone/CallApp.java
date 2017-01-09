@@ -15,41 +15,35 @@ import android.widget.Button;
 public class CallApp {
 
     final AppCompatActivity act;
-    String name;
 
-    public CallApp(String name, AppCompatActivity act){
-        //TODO: case he had said "call bob"
+
+    public CallApp(AppCompatActivity act){
         this.act = act;
-        this.name = name;
     }
 
     public boolean makeCall(ArrayList<String> results) {
 
         String con_name;
-        Cursor cur = act.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,new String[]{
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER }, null, null, null);
+        Cursor cur = Contact.getContacts(act);
+
         if(cur == null) {
             Log.i("empty","cur null");
             return false;
         }
+
         String phoneNo = "";
 
         for(String s:results) {
+            //checks if the call is for emergency
+            if(checkEmergency(s))
+                return true;
             Log.d("NAME", s);
-            if (cur.getCount() > 0) {
-                while (cur.moveToNext()) {
-                    phoneNo = cur.getString(1);
-                    con_name = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    Log.d("c_name", con_name);
-                    if (name.toLowerCase().equals(con_name.toLowerCase())) {
-                       if(callContact("tel:"+phoneNo))
-                           return true;
-                       else
-                           continue;
-                    }
-                }
-
+            phoneNo = Contact.getContactNumber(s,cur);
+            if(phoneNo != null){
+               if(callContact("tel:"+phoneNo))
+                   return true;
+               else
+                   continue;
             }
         }
         return false;
@@ -63,9 +57,22 @@ public class CallApp {
             return true;
         }
         catch(ActivityNotFoundException e){
-            Log.d("catch", name);
             return false;
         }
+    }
+
+    private boolean checkEmergency(String name){
+        if (name.toLowerCase().equals(Contact.POLICE.getName().toLowerCase())) {
+            if(callContact("tel:"+Contact.POLICE.getNumber()))
+                return true;
+        }
+
+        if(name.toLowerCase().equals(Contact.FIRE_DEPARTMENT.getName().toLowerCase())){
+            if(callContact("tel:"+Contact.FIRE_DEPARTMENT.getNumber()))
+                return true;
+        }
+
+        return false;
     }
 
 }
