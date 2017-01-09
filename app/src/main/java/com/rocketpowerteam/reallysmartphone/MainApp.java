@@ -32,7 +32,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
-        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose", 0), SET_ALARM("alarm", 0),
+        READ_MESSAGE("read", 0), COMPOSE_MESSAGE("create compose", 0), SET_ALARM("alarm", 2),
         STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
@@ -204,29 +204,15 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
                 if(!(mode == MenuItem.SET_ALARM)){
-                    tts.speak(getString(R.string.ask_date_for_alarm),TextToSpeech.QUEUE_FLUSH, null);
+                    tts.speak(getString(R.string.ask_time_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
                     mode = MenuItem.SET_ALARM;
-                    mode.resetState();
                     Log.d("set alarm", "");
-                    break;
                 }else{
-                    mode.changeState();
-                    switch (mode.getState()) {
-                        case 1:
-                            alarm = new Alarm("", "", this);
-                            alarm.setDate(getDate(s));
-                            tts.speak(getString(R.string.ask_time_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
-                            break;
-                        case 2:
-                            alarm.setTime(getTime(s));
-                            alarm = new Alarm(alarm.getTime(), alarm.getDate(), this);
-                            alarm.setAlarm();
-                            mode = null;
-                            break;
-                    }
-                    break;
+                    alarm = new Alarm(getTime(s), this);
+                    alarm.setAlarm();
+                    mode = null;
                 }
-
+                break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())){
                 Log.i("menu", "explain menu");
                 tts.speak(getString(R.string.menu),TextToSpeech.QUEUE_FLUSH,null);
@@ -258,23 +244,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         return false;
     }
 
-    public String getTime(String str){
-        String[] tokens = str.split(" ");
-        for(int i = 0; i < tokens.length; i++)
-            if(tokens[i].contains(":"))
-                return tokens[i];
-        return "";
-    }
-
-    public String getDate(String str){
-        String[] tokens = str.split(" ");
-        String d = "";
-        for(int i = 0; i < tokens.length; i++) {
-            if (tokens[i].contains(":") || tokens[i] == "on")
-                continue;
-            d += tokens[i];
-        }
-        return d;
+    public String[] getTime(String str){
+         return str.split(" |:|o'clock");
     }
 
     public boolean isNetworkAvailable() {
