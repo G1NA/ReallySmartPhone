@@ -3,7 +3,7 @@
     <string name="wrong_input">Sorry i did not get it, can you repeat it master</string>
     <string name="app_prompt">Hello I am Nala and I am here to help you use your smart phone..
         Whenever you need me please tap the screen and tell me slow and clear what you want..
-        To ask for the menu of choices please say "MENU"! </string>
+        To ask for the menu of choices please tap and say "MENU"! </string>
     <string name= "ask_contact_name">Ok! Please tell me the contact name.</string>
     <string name= "ask_contact_number">Thats fine! Now tell me the contact number.</string>
     <string name= "ask_contact_to_call">Who would you want me to call?</string>
@@ -16,9 +16,9 @@
     <string name= "no_messages">You have no messages, sorry for that master.</string>
     <string name= "send_message_confirmed">Your message hs been sent master</string>
     <string name= "failed_to_find_contact">"I am so sorry. I could not find your contact master!"</string>
-    <string name= "unavailable_network">However I need Internet in order to understand you." +
-    "Right now your Internet connection is disabled. So please tap on screen twice in order" +
-    "to allow me enable it and make our conversation far more enjoyable!</string>
+    <string name= "unavailable_network">However I need Internet in order to understand you.
+    Right now your Internet connection is disabled. So please tap on screen twice in order
+    to allow me enable it and make our conversation far more enjoyable!</string>
     <string name= "added_contact">Your contact is added!</string>
     <string name= "stop_music">To stop the music please say STOP</string>
     <string name= "failed_to_find_songs">"I am so sorry master! I could not find songs in your phone</string>
@@ -28,4 +28,6 @@
     make a call, play music for you, tell you the date, tell you the time and even read or compose a message for you!
         Either case I will make my best to guide you enough and help you keep up with the process! Now that you know
         all my abilities you are ready to tap and talk to me!</string>
+    <string name="you_have">You have</string>
+    <string name="unread_mes">unread messages.</string>
 </resources>

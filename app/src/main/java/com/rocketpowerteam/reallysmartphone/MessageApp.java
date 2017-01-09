@@ -24,6 +24,7 @@ public class MessageApp {
         String WHERE_CONDITION = "read = 0";
         String SORT_ORDER = "date DESC";
         int count ;
+        ArrayList<String> l =  new ArrayList<String>();
 
         Cursor cursor = act.getContentResolver().query(
                 SMS_INBOX_CONTENT_URI,
@@ -45,14 +46,15 @@ public class MessageApp {
                     String contactId_string = String.valueOf(contactId);
                     long timestamp = cursor.getLong(1);
                     String body = cursor.getString(2);
-                    Log.i("", contactId_string+" "+timestamp+" "+body);
+                    Log.i("id", contactId_string);
+                    Log.i("ts", timestamp+"");
+                    Log.i("body",body);
                     //TODO return something readable enough
                 }
             } finally {
                 cursor.close();
             }
         }
-        ArrayList<String> l =  new ArrayList<String>();
         l.add("sam said blah");
         return l;
     }

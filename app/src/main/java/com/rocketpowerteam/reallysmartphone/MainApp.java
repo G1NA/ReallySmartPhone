@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
@@ -20,10 +21,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     private ImageButton btn;
     private TextToSpeech tts;
     boolean calMode = false;
-    private MenuItem mode;
-    private Contact contact;
+    private MenuItem mode = null;
+    private Contact contact = new Contact();
     private Alarm alarm;
-    private PlayMusicApp pm;
+    private PlayMusicApp pm = new PlayMusicApp(this);
     private DateTimeApp dt = new DateTimeApp(this);
     private boolean hasNetworkConnection = false;
     private int clickCount = 0;
@@ -67,8 +68,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     if(res == TextToSpeech.LANG_NOT_SUPPORTED || res == TextToSpeech.LANG_MISSING_DATA){
                         Log.e("TTS", "Language is not supported");
                     }
-
-                    String net_string = isNetworkAvailable() ? "" : getString(R.string.unavailable_network);
+                    hasNetworkConnection = isNetworkAvailable();
+                    String net_string = hasNetworkConnection ? "" : getString(R.string.unavailable_network);
                     tts.speak(getString(R.string.app_prompt) + net_string, TextToSpeech.QUEUE_FLUSH, null);
                 }else{
                     Log.e("TTS","Init failed");
@@ -82,9 +83,11 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View view) {
         clickCount++;
-        if(!hasNetworkConnection && clickCount == 2){
-            hasNetworkConnection = enableNetworkConnection();
-            clickCount = 0;
+        if(!hasNetworkConnection){
+            if(clickCount == 2) {
+                hasNetworkConnection = enableNetworkConnection();
+                clickCount = 0;
+            }
         }else {
             if (pm != null && pm.isPlaying()) {
                 pm.volumeDown();
@@ -100,7 +103,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        //TODO isws na 3ananevainei edw i fwni....
         if(pm != null && pm.isPlaying()){
             pm.pause();
         }
@@ -113,10 +115,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    protected  void init(){
-        //TODO
-        //INITIALIZE ALL FIELDS THAT ARE NEEDED FOR THE APP (like dt)
-    }
     private void find_menu_action(Intent data){
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         for(String s:results){
@@ -176,14 +174,14 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
                 MessageApp mes = new MessageApp(this);
-                if(mes.readMessages().size() == 0){
+                ArrayList<String> messages = mes.readMessages();
+                if(messages.size() == 0){
                     tts.speak(getString(R.string.no_messages), TextToSpeech.QUEUE_FLUSH, null);
                 }
                 else{
+                    tts.speak(getString(R.string.you_have)+" "+messages.size()+" "+getString(R.string.unread_mes),TextToSpeech.QUEUE_FLUSH,null);
                     for(String message: mes.readMessages()){
-                        tts.speak("Message from" , TextToSpeech.QUEUE_FLUSH, null); //contact
-                        tts.speak("on " , TextToSpeech.QUEUE_FLUSH, null);//date?
-                        tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
+                        tts.speak(message , TextToSpeech.QUEUE_FLUSH, null);
                     }
                 }
                 Log.i("menu"," read message");
@@ -205,9 +203,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             Cursor cur = Contact.getContacts(this);
                             String phoneNo = null;
                             for(String name:results) {
-                                phoneNo = Contact.getContactNumber(s,cur);
+                                phoneNo = Contact.getContactNumber(name,cur);
                                 if(phoneNo != null) {
-                                    contact.setName(s);
+                                    contact.setName(name);
                                     contact.setNumber(phoneNo);
                                     break;
                                 }
@@ -298,7 +296,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     }
 
     private boolean enableNetworkConnection() {
-        return false;
+        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifi.setWifiEnabled(true);
+        return true;
     }
 
 }
