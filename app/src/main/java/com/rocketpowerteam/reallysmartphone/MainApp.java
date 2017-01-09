@@ -123,11 +123,11 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     private void find_menu_action(Intent data){
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-        int i=1;
+        boolean menu_item_found = false;
         for(String s:results){
             Log.i("res", s);
-            i++;
             if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || mode == MenuItem.CALL_CONTACT){
+                menu_item_found = true;
                 if (!(mode == MenuItem.CALL_CONTACT)) {
                     calMode = true;
                     mode = MenuItem.CALL_CONTACT;
@@ -143,11 +143,11 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
                             calMode = false;
                             mode = null;
-                            i --;
                             break;
                     }
                 }
             }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase()) || mode == MenuItem.ADD_CONTACT){
+                menu_item_found = true;
                 if(!(mode == MenuItem.ADD_CONTACT)){
                     mode = MenuItem.ADD_CONTACT;
                     mode.resetState();
@@ -160,7 +160,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             contact = new Contact();
                             contact.setName(s);
                             tts.speak(getString(R.string.ask_contact_number), TextToSpeech.QUEUE_FLUSH, null);
-                            i --;
                             break;
                         case 2:
                             contact.setNumber(NumFixer.fixNumber(s));
@@ -168,16 +167,17 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             ac.addContact();
                             tts.speak(getString(R.string.added_contact), TextToSpeech.QUEUE_FLUSH, null);
                             mode = null;
-                            i --;
                             break;
                     }
                 }
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
+                menu_item_found = true;
                 if (pm!=null && pm.isPaused())
                     pm.stopPlayer();
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
+                menu_item_found = true;
                 pm = new PlayMusicApp(this);
                 if(!pm.playMusic())
                     tts.speak(getString(R.string.failed_to_find_songs), TextToSpeech.QUEUE_FLUSH, null);
@@ -186,6 +186,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 mode = null;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
+                menu_item_found = true;
                 MessageApp mes = new MessageApp(this);
                 ArrayList<String> messages = mes.readMessages();
                 if(messages.size() == 0){
@@ -227,7 +228,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
                                 mode = null;
                             }
-                            i--;
                             break;
                         case 2:
                             MessageApp ma = new MessageApp(this);
@@ -235,18 +235,20 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             ma.sendLongSMS();
                             tts.speak(getString(R.string.composed_message), TextToSpeech.QUEUE_FLUSH, null);
                             mode = null;
-                            i --;
                             break;
                     }
                     break;
                 }
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
+                menu_item_found = true;
                 tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())) {
+                menu_item_found = true;
                 tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
+                menu_item_found = true;
                 if(!(mode == MenuItem.SET_ALARM)){
                     tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
                     mode = MenuItem.SET_ALARM;
@@ -269,7 +271,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
                             }
 
-                            i --;
                             break;
                         case 2:
                             minutes = "";
@@ -287,15 +288,16 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 alarm.setAlarm();
                                 mode = null;
                             }
-                            i --;
                             break;
                     }
                     break;
                 }
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
+                menu_item_found = true;
                 tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
+                menu_item_found = true;
                 CallApp c = new CallApp(this);
                 if(c.makeCall(Contact.POLICE)) {
                     tts.speak(getString(R.string.calm), TextToSpeech.QUEUE_FLUSH, null);
@@ -305,12 +307,11 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 }
 
             }else{
-                Log.i("else", s);
                 continue;
             }
         }
 
-        if(i == results.size()){
+        if(!menu_item_found){
             tts.speak(getString(R.string.wrong_input), TextToSpeech.QUEUE_FLUSH, null);
         }
         if(mode == null){
