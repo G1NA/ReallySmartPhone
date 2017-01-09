@@ -37,7 +37,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 1);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
-                            // for example call has two states 1) ask for name 2) make call
+        // for example call has two states 1) ask for name 2) make call
         int max_state;
         MenuItem(String strCommand, int max_state)
         {
@@ -79,8 +79,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }
         });
     }
-
-
 
     @Override
     public void onClick(View view) {
@@ -130,16 +128,21 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     calMode = true;
                     mode = MenuItem.CALL_CONTACT;
                     tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
+                    i --;
                     break;
                 }
                 else{
-                    MainApp m = this;
-                    CallApp c = new CallApp(m);
-                    if(! c.makeCall(results))
-                        tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
-                    calMode = false;
-                    mode = null;
-                    break;
+                    mode.changeState();
+                    switch (mode.getState()) {
+                        case 1:
+                            CallApp c = new CallApp(this);
+                            if (!c.makeCall(results))
+                                tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
+                            calMode = false;
+                            mode = null;
+                            i --;
+                            break;
+                    }
                 }
             }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase()) || mode == MenuItem.ADD_CONTACT){
                 if(!(mode == MenuItem.ADD_CONTACT)){
@@ -154,6 +157,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             contact = new Contact();
                             contact.setName(s);
                             tts.speak(getString(R.string.ask_contact_number), TextToSpeech.QUEUE_FLUSH, null);
+                            i --;
                             break;
                         case 2:
                             contact.setNumber(s);
@@ -162,13 +166,16 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             ac.addContact();
                             tts.speak(getString(R.string.added_contact), TextToSpeech.QUEUE_FLUSH, null);
                             mode = null;
+                            i --;
                             break;
                     }
                 }
+                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
                 if (pm!=null && pm.isPaused())
                     pm.stopPlayer();
+                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
                 pm = new PlayMusicApp(this);
@@ -177,6 +184,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 else
                     tts.speak(getString(R.string.stop_music), TextToSpeech.QUEUE_FLUSH, null);
                 mode = null;
+                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
                 MessageApp mes = new MessageApp(this);
@@ -190,12 +198,14 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                         tts.speak(message , TextToSpeech.QUEUE_FLUSH, null);
                     }
                 }
+                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail()) || mode == MenuItem.COMPOSE_MESSAGE) {
                 if (!(mode == MenuItem.COMPOSE_MESSAGE)) {
                     mode = MenuItem.COMPOSE_MESSAGE;
                     mode.resetState();
                     tts.speak(getString(R.string.ask_contact_to_send_message), TextToSpeech.QUEUE_FLUSH, null);
+                    i --;
                     break;
                 }
                 else{
@@ -210,6 +220,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 if(phoneNo != null) {
                                     contact.setName(name);
                                     contact.setNumber(phoneNo);
+                                    i --;
                                     break;
                                 }
                             }
@@ -227,38 +238,47 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             ma.sendLongSMS();
                             tts.speak(getString(R.string.composed_message), TextToSpeech.QUEUE_FLUSH, null);
                             mode = null;
+                            i --;
                             break;
                     }
+                    i --;
                     break;
                 }
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
                 tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
+                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())) {
                 tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
+                i --;
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
                 if(!(mode == MenuItem.SET_ALARM)){
                     tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
                     mode = MenuItem.SET_ALARM;
+                    i --;
+                    break;
                 }else {
                     mode.changeState();
                     switch (mode.getState()) {
                         case 1:
                             hour = s;
                             tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                            i --;
                             break;
                         case 2:
                             minutes = s;
                             alarm = new Alarm(hour, minutes, this);
                             alarm.setAlarm();
                             mode = null;
+                            i --;
                             break;
                     }
+                    break;
                 }
-                break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
                 tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
+                i --;
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
                 CallApp c = new CallApp(this);
