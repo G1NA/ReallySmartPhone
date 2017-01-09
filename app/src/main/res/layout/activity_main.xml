@@ -16,8 +16,9 @@
     <ImageButton
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        app:srcCompat="@drawable/mic"
+        app:srcCompat="@drawable/m2"
         android:id="@+id/talktome"
+        android:background="@null"
         android:scaleType="fitXY" />
 
 

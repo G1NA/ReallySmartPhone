@@ -1,6 +1,9 @@
 package com.rocketpowerteam.reallysmartphone;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
@@ -67,6 +70,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                         Log.e("TTS", "Language is not supported");
                     }
                     tts.speak(getString(R.string.app_prompt),TextToSpeech.QUEUE_FLUSH,null);
+                    Log.i("network on:", isNetworkAvailable()?"yes":"no");
                     //tts.setSpeechRate(0.8f);
                 }else{
                     Log.e("TTS","Init failed");
@@ -271,5 +275,16 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             d += tokens[i];
         }
         return d;
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+        boolean isAvailable = false;
+        if (networkInfo != null && networkInfo.isConnected()) {
+            isAvailable = true;
+        }
+        return isAvailable;
     }
 }
