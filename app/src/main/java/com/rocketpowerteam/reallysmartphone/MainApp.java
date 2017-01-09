@@ -190,12 +190,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                         tts.speak(message , TextToSpeech.QUEUE_FLUSH, null);
                     }
                 }
-                Log.i("menu"," read message");
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail()) || mode == MenuItem.COMPOSE_MESSAGE) {
-                Log.i("menu", " compose message ");
                 if (!(mode == MenuItem.COMPOSE_MESSAGE)) {
-                    Log.i("first"," compose message ");
                     mode = MenuItem.COMPOSE_MESSAGE;
                     mode.resetState();
                     tts.speak(getString(R.string.ask_contact_to_send_message), TextToSpeech.QUEUE_FLUSH, null);
@@ -225,7 +222,6 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                             }
                             break;
                         case 2:
-                            Log.i("message", s);
                             MessageApp ma = new MessageApp(this);
                             //ma.sendMessage(new Message(s,contact));
                             ma.sendLongSMS();
