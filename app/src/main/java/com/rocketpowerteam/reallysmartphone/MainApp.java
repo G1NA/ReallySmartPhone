@@ -119,8 +119,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     private void find_menu_action(Intent data){
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        int i=1;
         for(String s:results){
             Log.i("res", s);
+            i++;
             if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || mode == MenuItem.CALL_CONTACT){
                 if (!(mode == MenuItem.CALL_CONTACT)) {
                     calMode = true;
@@ -265,6 +267,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }
         }
 
+        if(i == results.size()){
+            tts.speak(getString(R.string.wrong_input), TextToSpeech.QUEUE_FLUSH, null);
+        }
         if(mode == null){
             if(pm!=null && pm.isPaused()){
                 pm.resume();
