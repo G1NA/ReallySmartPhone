@@ -227,10 +227,12 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     mode = null;
                 }
                 break;
-            }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())){
+            }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
                 Log.i("menu", "explain menu");
-                tts.speak(getString(R.string.menu),TextToSpeech.QUEUE_FLUSH,null);
+                tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
                 break;
+            }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
+
             }else{
                 Log.i("else", s);
                 continue;
