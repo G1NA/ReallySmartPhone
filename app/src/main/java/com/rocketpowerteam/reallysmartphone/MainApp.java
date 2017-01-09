@@ -23,6 +23,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     boolean calMode = false;
     MenuItem mode;
     Contact contact;
+    Alarm alarm;
     private PlayMusicApp pm;
     private DateTimeApp dt = new DateTimeApp(this);
 
@@ -125,7 +126,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     CallApp c = new CallApp(s, m);
                     if(! c.makeCall(results))
                         tts.speak("I am so sorry. I could not find your contact master!", TextToSpeech.QUEUE_FLUSH, null);
-                        //tts.speak(""); TODO EROOR MESSAGE HERE
+                    //tts.speak(""); TODO EROOR MESSAGE HERE
                     //exoume dio epiloges...na 3anarwta to onoma i na 3anagirnaei sto arxiko menou
 
 
@@ -197,9 +198,31 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 Log.i("menu", "tell time");
                 tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
                 break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.SET_ALARM.getDetail())) {
-                Log.i("menu", "set alarm");
-                break;
+            } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
+                if(!(mode == MenuItem.SET_ALARM)){
+                    tts.speak(getString(R.string.ask_date_for_alarm),TextToSpeech.QUEUE_FLUSH, null);
+                    mode = MenuItem.SET_ALARM;
+                    mode.resetState();
+                    Log.d("set alarm", "");
+                    break;
+                }else{
+                    mode.changeState();
+                    switch (mode.getState()) {
+                        case 1:
+                            alarm = new Alarm("", "", this);
+                            alarm.setDate(getDate(s));
+                            tts.speak(getString(R.string.ask_time_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                            break;
+                        case 2:
+                            alarm.setTime(getTime(s));
+                            alarm = new Alarm(alarm.getTime(), alarm.getDate(), this);
+                            alarm.setAlarm();
+                            mode = null;
+                            break;
+                    }
+                    break;
+                }
+
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())){
                 Log.i("menu", "explain menu");
                 tts.speak(getString(R.string.menu),TextToSpeech.QUEUE_FLUSH,null);
@@ -231,13 +254,22 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         return false;
     }
 
-    public boolean isValid(String str) {
-
-        String[] input = str.split(" ");
-
-
-        return false;
-
+    public String getTime(String str){
+        String[] tokens = str.split(" ");
+        for(int i = 0; i < tokens.length; i++)
+            if(tokens[i].contains(":"))
+                return tokens[i];
+        return "";
     }
 
+    public String getDate(String str){
+        String[] tokens = str.split(" ");
+        String d = "";
+        for(int i = 0; i < tokens.length; i++) {
+            if (tokens[i].contains(":") || tokens[i] == "on")
+                continue;
+            d += tokens[i];
+        }
+        return d;
+    }
 }

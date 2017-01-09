@@ -28,6 +28,14 @@ public class Alarm {
         this.act = act;
     }
 
+    public String getTime(){return time;}
+
+    public String getDate(){return date;}
+
+    public void setTime(String time){ this.time = time;}
+
+    public void setDate(String date){ this.date = date;}
+
     private int getHour(String time){
         return Integer.parseInt(time.split(":")[0]);
     }
@@ -57,12 +65,27 @@ public class Alarm {
                 }
             }
         }
-        return -1;
+        Calendar c = Calendar.getInstance();
+        return c.get(Calendar.MONTH);   //if user does not mention month, return the current one
     }
 
+    private int getDayOfMonth(String day){
+        String[] possibleDays = date.split(" ");
+        int a;
+        for (int i = 0; i < possibleDays.length; i++){
+            possibleDays[i].replace("th", "");
+            try {
+                a = Integer.parseInt(day);
+                return a;
+            } catch (NumberFormatException e) {
 
-    private void setAlarm(Calendar targetCal){
+            }
+        }
+        return 0;
+    }
 
+    public void setAlarm(){
+        Log.d(date, time);
         Date dat  = new Date();//initializes to now
         Calendar cal_alarm = Calendar.getInstance();
         Calendar cal_now = Calendar.getInstance();
@@ -81,7 +104,7 @@ public class Alarm {
         else{
             Log.d("lathos mhnas", "");
         }
-        cal_alarm.set(Calendar.DAY_OF_MONTH, 17);
+        cal_alarm.set(Calendar.DAY_OF_MONTH, getDayOfMonth(date));
 
         Intent intent = new Intent(act, Alarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(act, RQS_1, intent, 0);
