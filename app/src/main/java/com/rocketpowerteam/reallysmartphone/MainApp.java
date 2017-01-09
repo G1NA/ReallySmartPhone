@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 public final class MainApp extends AppCompatActivity implements View.OnClickListener{
@@ -29,6 +30,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     Alarm alarm;
     private PlayMusicApp pm;
     private DateTimeApp dt = new DateTimeApp(this);
+    private boolean hasNetworkConnection = false;
 
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
@@ -85,17 +87,26 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     }
 
+    private int clickCount = 0;
+
     @Override
     public void onClick(View view) {
-        if(pm != null && pm.isPlaying()){
-            pm.volumeDown();
+        clickCount++;
+        if(!hasNetworkConnection && clickCount == 2){
+            enableNetworkConnection();
+            clickCount = 0;
+        }else {
+            if (pm != null && pm.isPlaying()) {
+                pm.volumeDown();
+            }
+            Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+            i.putExtra(RecognizerIntent.EXTRA_PROMPT, "Tap and talk baby!");
+            startActivityForResult(i, 1);
         }
-        Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"en-US");
-        i.putExtra(RecognizerIntent.EXTRA_PROMPT, "Tap and talk baby!");
-        startActivityForResult(i, 1);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -211,7 +222,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     mode = MenuItem.SET_ALARM;
                     Log.d("set alarm", "");
                 }else{
-                    alarm = new Alarm(getTime(s), this);
+                    alarm = new Alarm(DateTimeApp.getTime(s), this);
                     alarm.setAlarm();
                     mode = null;
                 }
@@ -234,7 +245,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    public boolean checkCommand(String str1,String str2){
+    private boolean checkCommand(String str1,String str2){
         String[] s1 = str1.split(" ");
         String[] s2 = str2.split(" ");
 
@@ -247,11 +258,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         return false;
     }
 
-    public String[] getTime(String str){
-         return str.split(" |:|o'clock");
-    }
-
-    public boolean isNetworkAvailable() {
+    private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 
@@ -261,4 +268,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         }
         return isAvailable;
     }
+
+    private void enableNetworkConnection() {
+    }
+
 }

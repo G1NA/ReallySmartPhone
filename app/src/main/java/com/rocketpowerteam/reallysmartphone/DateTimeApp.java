@@ -55,4 +55,9 @@ public class DateTimeApp {
     }
 
 
+    public static String[] getTime(String str){
+        return str.split(" |:|o'clock");
+    }
+
+
 }
