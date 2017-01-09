@@ -16,6 +16,15 @@ import android.widget.ImageButton;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import commons.Contact;
+import helpers.NumFixer;
+import services.AddContactApp;
+import services.AlarmApp;
+import services.CallApp;
+import services.DateTimeApp;
+import services.MessageApp;
+import services.PlayMusicApp;
+
 public final class MainApp extends AppCompatActivity implements View.OnClickListener{
 
     private ImageButton btn;
@@ -23,7 +32,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     boolean calMode = false;
     private MenuItem mode = null;
     private Contact contact = new Contact();
-    private Alarm alarm;
+    private AlarmApp alarmApp;
     private PlayMusicApp pm = new PlayMusicApp(this);
     private DateTimeApp dt = new DateTimeApp(this);
     private boolean hasNetworkConnection = false;
@@ -33,7 +42,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
-        READ_MESSAGE("read", 1), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 3),
+        READ_MESSAGE("read", 1), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarmApp", 3),
         STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 1);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
@@ -284,8 +293,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                                 tts.speak(getString(R.string.wrocng_minute),TextToSpeech.QUEUE_FLUSH,null);
                                 mode.repeat();
                             }else {
-                                alarm = new Alarm(hour, minutes, this);
-                                alarm.setAlarm();
+                                alarmApp = new AlarmApp(hour, minutes, this);
+                                alarmApp.setAlarm();
                                 mode = null;
                             }
                             break;

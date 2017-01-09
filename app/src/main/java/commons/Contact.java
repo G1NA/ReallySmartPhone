@@ -1,13 +1,9 @@
-package com.rocketpowerteam.reallysmartphone;
+package commons;
 
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by gina4_000 on 7/1/2017.

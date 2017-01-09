@@ -1,4 +1,4 @@
-package com.rocketpowerteam.reallysmartphone;
+package services;
 
 import android.content.ContentResolver;
 import android.database.Cursor;

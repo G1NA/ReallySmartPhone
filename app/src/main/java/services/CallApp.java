@@ -1,16 +1,14 @@
-package com.rocketpowerteam.reallysmartphone;
+package services;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import java.util.ArrayList;
 import android.content.ActivityNotFoundException;
-import android.widget.Button;
+
+import commons.Contact;
 
 public class CallApp {
 

@@ -1,4 +1,4 @@
-package com.rocketpowerteam.reallysmartphone;
+package commons;
 
 /**
  * Created by gina4_000 on 9/1/2017.

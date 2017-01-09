@@ -1,4 +1,4 @@
-package com.rocketpowerteam.reallysmartphone;
+package services;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -7,6 +7,8 @@ import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+
+import commons.Contact;
 
 import java.util.ArrayList;
 

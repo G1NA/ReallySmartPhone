@@ -1,17 +1,17 @@
-package com.rocketpowerteam.reallysmartphone;
+package services;
 
 import android.provider.AlarmClock;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 
-public class Alarm {
+public class AlarmApp {
 
     final AppCompatActivity act;
     private String hour;
     private String minutes;
     final static int RQS_1 = 1;
 
-    public Alarm(String hour, String minutes, AppCompatActivity act){
+    public AlarmApp(String hour, String minutes, AppCompatActivity act){
         this.hour = hour;
         this.minutes = minutes;
         this.act = act;

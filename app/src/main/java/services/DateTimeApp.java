@@ -1,4 +1,4 @@
-package com.rocketpowerteam.reallysmartphone;
+package services;
 
 import android.support.v7.app.AppCompatActivity;
 import java.util.Calendar;

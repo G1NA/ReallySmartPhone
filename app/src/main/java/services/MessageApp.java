@@ -1,10 +1,13 @@
-package com.rocketpowerteam.reallysmartphone;
+package services;
 
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.util.Log;
+
+import commons.Contact;
+import commons.Message;
 
 import java.util.ArrayList;
 
