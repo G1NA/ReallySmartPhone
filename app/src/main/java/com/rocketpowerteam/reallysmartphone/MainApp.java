@@ -86,6 +86,8 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         if(!hasNetworkConnection){
             if(clickCount == 2) {
                 hasNetworkConnection = enableNetworkConnection();
+                if(hasNetworkConnection)
+                    tts.speak(getString(R.string.wifi_enabled),TextToSpeech.QUEUE_FLUSH, null);
                 clickCount = 0;
             }
         }else {
