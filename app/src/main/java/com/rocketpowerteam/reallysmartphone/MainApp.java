@@ -42,7 +42,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     enum MenuItem {
         EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
-        READ_MESSAGE("read", 1), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarmApp", 3),
+        READ_MESSAGE("read", 1), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 3),
         STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 1);
         String strCommand;
         int inner_state = 0; // used to choose between inner states of a menu item
@@ -60,9 +60,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             inner_state += 1 % max_state;
         }
         public int getState(){ return this.inner_state; }
-
         public void resetState() { this.inner_state = 0; }
-
         public void repeat() {
             inner_state--;
         }
@@ -170,6 +168,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
                 menu_item_found = true;
                 set_alarm(results, s);
+                break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
                 menu_item_found = true;
                 say_menu(results, s);
@@ -187,6 +186,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         if(!menu_item_found){
             tts.speak(getString(R.string.wrong_input), TextToSpeech.QUEUE_FLUSH, null);
         }
+
         if(mode == null){
             if(pm!=null && pm.isPaused()){
                 pm.resume();
@@ -318,8 +318,9 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
 
     private void set_alarm(ArrayList<String> results, String current) {
         if(!(mode == MenuItem.SET_ALARM)){
-            tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
             mode = MenuItem.SET_ALARM;
+            mode.resetState();
+            tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
         }else {
             mode.changeState();
             switch (mode.getState()) {
