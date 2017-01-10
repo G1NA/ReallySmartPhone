@@ -261,10 +261,11 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             tts.speak(getString(R.string.no_messages), TextToSpeech.QUEUE_FLUSH, null);
         }
         else{
-            tts.speak(getString(R.string.you_have)+" "+messages.size()+" "+getString(R.string.unread_mes),TextToSpeech.QUEUE_FLUSH,null);
-            for(String message: mes.readMessages()){
-                tts.speak(message , TextToSpeech.QUEUE_FLUSH, null);
+            tts.speak(getString(R.string.you_have)+" "+messages.size()+" "+getString(R.string.unread_mes),TextToSpeech.QUEUE_ADD,null);
+            for(String message: messages){
+                tts.speak(message , TextToSpeech.QUEUE_ADD, null);
             }
+            tts.speak(null,TextToSpeech.QUEUE_FLUSH,null);
         }
     }
 
