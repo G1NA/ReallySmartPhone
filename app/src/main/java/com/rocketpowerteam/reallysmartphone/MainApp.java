@@ -137,183 +137,47 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             Log.i("res", s);
             if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || mode == MenuItem.CALL_CONTACT){
                 menu_item_found = true;
-                if (!(mode == MenuItem.CALL_CONTACT)) {
-                    calMode = true;
-                    mode = MenuItem.CALL_CONTACT;
-                    tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
-                    break;
-                }
-                else{
-                    mode.changeState();
-                    switch (mode.getState()) {
-                        case 1:
-                            CallApp c = new CallApp(this);
-                            if (!c.makeCall(results))
-                                tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
-                            calMode = false;
-                            mode = null;
-                            break;
-                    }
-                }
+                call_contact(results, s);
+                break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase()) || mode == MenuItem.ADD_CONTACT){
                 menu_item_found = true;
-                if(!(mode == MenuItem.ADD_CONTACT)){
-                    mode = MenuItem.ADD_CONTACT;
-                    mode.resetState();
-                    tts.speak(getString(R.string.ask_contact_name), TextToSpeech.QUEUE_FLUSH, null);
-                    break;
-                }else{
-                    mode.changeState();
-                    switch (mode.getState()){
-                        case 1:
-                            contact = new Contact();
-                            contact.setName(s);
-                            tts.speak(getString(R.string.ask_contact_number), TextToSpeech.QUEUE_FLUSH, null);
-                            break;
-                        case 2:
-                            contact.setNumber(NumFixer.fixNumber(s));
-                            AddContactApp ac = new AddContactApp(contact, this);
-                            ac.addContact();
-                            tts.speak(getString(R.string.added_contact), TextToSpeech.QUEUE_FLUSH, null);
-                            mode = null;
-                            break;
-                    }
-                }
+                add_contact(results, s);
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
                 menu_item_found = true;
-                if (pm!=null && pm.isPaused())
-                    pm.stopPlayer();
+                stop_music(results, s);
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
                 menu_item_found = true;
-                pm = new PlayMusicApp(this);
-                if(!pm.playMusic())
-                    tts.speak(getString(R.string.failed_to_find_songs), TextToSpeech.QUEUE_FLUSH, null);
-                else
-                    tts.speak(getString(R.string.stop_music), TextToSpeech.QUEUE_FLUSH, null);
-                mode = null;
+                play_music(results, s);
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
                 menu_item_found = true;
-                MessageApp mes = new MessageApp(this);
-                ArrayList<String> messages = mes.readMessages();
-                if(messages.size() == 0){
-                    tts.speak(getString(R.string.no_messages), TextToSpeech.QUEUE_FLUSH, null);
-                }
-                else{
-                    tts.speak(getString(R.string.you_have)+" "+messages.size()+" "+getString(R.string.unread_mes),TextToSpeech.QUEUE_FLUSH,null);
-                    for(String message: mes.readMessages()){
-                        tts.speak(message , TextToSpeech.QUEUE_FLUSH, null);
-                    }
-                }
+                read_message(results, s);
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail()) || mode == MenuItem.COMPOSE_MESSAGE) {
-                if (!(mode == MenuItem.COMPOSE_MESSAGE)) {
-                    mode = MenuItem.COMPOSE_MESSAGE;
-                    mode.resetState();
-                    tts.speak(getString(R.string.ask_contact_to_send_message), TextToSpeech.QUEUE_FLUSH, null);
-                    break;
-                }
-                else{
-                    mode.changeState();
-                    switch (mode.getState()){
-                        case 1:
-                            contact = new Contact();
-                            Cursor cur = Contact.getContacts(this);
-                            String phoneNo = null;
-                            for(String name:results) {
-                                phoneNo = Contact.getContactNumber(name,cur);
-                                if(phoneNo != null) {
-                                    contact.setName(name);
-                                    contact.setNumber(phoneNo);
-                                    break;
-                                }
-                            }
-
-                            if(phoneNo != null) {
-                                tts.speak(getString(R.string.tell_body_message), TextToSpeech.QUEUE_FLUSH, null);
-                            }else {
-                                tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
-                                mode = null;
-                            }
-                            break;
-                        case 2:
-                            MessageApp ma = new MessageApp(this);
-                            //ma.sendMessage(new Message(s,contact));
-                            ma.sendLongSMS();
-                            tts.speak(getString(R.string.composed_message), TextToSpeech.QUEUE_FLUSH, null);
-                            mode = null;
-                            break;
-                    }
-                    break;
-                }
+                menu_item_found = true;
+                compose_message(results, s);
+                break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
                 menu_item_found = true;
-                tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
+                tell_date(results,s);
                 break;
             }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())) {
                 menu_item_found = true;
-                tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
+                tell_time(results, s);
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
                 menu_item_found = true;
-                if(!(mode == MenuItem.SET_ALARM)){
-                    tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
-                    mode = MenuItem.SET_ALARM;
-                    break;
-                }else {
-                    mode.changeState();
-                    switch (mode.getState()) {
-                        case 1:
-                            hour = "";
-                            for(String token : results){
-                                hour = NumFixer.fixNumber(token);
-                                if(!hour.equals(""))
-                                    break;
-                            }
-
-                            if(hour.equals("")){
-                                tts.speak(getString(R.string.wrong_hour),TextToSpeech.QUEUE_FLUSH,null);
-                                mode.repeat();
-                            }else {
-                                tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
-                            }
-
-                            break;
-                        case 2:
-                            minutes = "";
-                            for(String token : results){
-                                minutes = NumFixer.fixNumber(token);
-                                if(!minutes.equals(""))
-                                    break;
-                            }
-
-                            if(minutes.equals("")){
-                                tts.speak(getString(R.string.wrocng_minute),TextToSpeech.QUEUE_FLUSH,null);
-                                mode.repeat();
-                            }else {
-                                alarmApp = new AlarmApp(hour, minutes, this);
-                                alarmApp.setAlarm();
-                                mode = null;
-                            }
-                            break;
-                    }
-                    break;
-                }
+                set_alarm(results, s);
             }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
                 menu_item_found = true;
-                tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
+                say_menu(results, s);
                 break;
             }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
                 menu_item_found = true;
-                CallApp c = new CallApp(this);
-                if(c.makeCall(Contact.POLICE)) {
-                    tts.speak(getString(R.string.calm), TextToSpeech.QUEUE_FLUSH, null);
-                }else{
-                    tts.speak(getString(R.string.unlucky),
-                            TextToSpeech.QUEUE_FLUSH, null);
-                }
+                help(results, s);
+                break;
 
             }else{
                 continue;
@@ -331,7 +195,187 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private boolean checkCommand(String str1,String str2){
+    private void call_contact(ArrayList<String> results, String current) {
+        if (!(mode == MenuItem.CALL_CONTACT)) {
+            calMode = true;
+            mode = MenuItem.CALL_CONTACT;
+            tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
+        }
+        else{
+            mode.changeState();
+            switch (mode.getState()) {
+                case 1:
+                    CallApp c = new CallApp(this);
+                    if (!c.makeCall(results))
+                        tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
+                    calMode = false;
+                    mode = null;
+                    break;
+            }
+        }
+    }
+
+    private void add_contact(ArrayList<String> results, String current) {
+
+        if(!(mode == MenuItem.ADD_CONTACT)){
+            mode = MenuItem.ADD_CONTACT;
+            mode.resetState();
+            tts.speak(getString(R.string.ask_contact_name), TextToSpeech.QUEUE_FLUSH, null);
+        }else{
+            mode.changeState();
+            switch (mode.getState()){
+                case 1:
+                    contact = new Contact();
+                    contact.setName(current);
+                    tts.speak(getString(R.string.ask_contact_number), TextToSpeech.QUEUE_FLUSH, null);
+                    break;
+                case 2:
+                    contact.setNumber(NumFixer.fixNumber(current));
+                    AddContactApp ac = new AddContactApp(contact, this);
+                    ac.addContact();
+                    tts.speak(getString(R.string.added_contact), TextToSpeech.QUEUE_FLUSH, null);
+                    mode = null;
+                    break;
+            }
+        }
+    }
+
+    private void stop_music(ArrayList<String> results, String current) {
+        if (pm!=null && pm.isPaused())
+            pm.stopPlayer();
+    }
+
+    private void play_music(ArrayList<String> results, String current) {
+        pm = new PlayMusicApp(this);
+        if(!pm.playMusic())
+            tts.speak(getString(R.string.failed_to_find_songs), TextToSpeech.QUEUE_FLUSH, null);
+        else
+            tts.speak(getString(R.string.stop_music), TextToSpeech.QUEUE_FLUSH, null);
+        mode = null;
+    }
+
+    private void read_message(ArrayList<String> results, String current) {
+        MessageApp mes = new MessageApp(this);
+        ArrayList<String> messages = mes.readMessages();
+        if(messages.size() == 0){
+            tts.speak(getString(R.string.no_messages), TextToSpeech.QUEUE_FLUSH, null);
+        }
+        else{
+            tts.speak(getString(R.string.you_have)+" "+messages.size()+" "+getString(R.string.unread_mes),TextToSpeech.QUEUE_FLUSH,null);
+            for(String message: mes.readMessages()){
+                tts.speak(message , TextToSpeech.QUEUE_FLUSH, null);
+            }
+        }
+    }
+
+    private void compose_message(ArrayList<String> results, String current) {
+        if (!(mode == MenuItem.COMPOSE_MESSAGE)) {
+            mode = MenuItem.COMPOSE_MESSAGE;
+            mode.resetState();
+            tts.speak(getString(R.string.ask_contact_to_send_message), TextToSpeech.QUEUE_FLUSH, null);
+        }
+        else{
+            mode.changeState();
+            switch (mode.getState()){
+                case 1:
+                    contact = new Contact();
+                    Cursor cur = Contact.getContacts(this);
+                    String phoneNo = null;
+                    for(String name:results) {
+                        phoneNo = Contact.getContactNumber(name,cur);
+                        if(phoneNo != null) {
+                            contact.setName(name);
+                            contact.setNumber(phoneNo);
+                            break;
+                        }
+                    }
+
+                    if(phoneNo != null) {
+                        tts.speak(getString(R.string.tell_body_message), TextToSpeech.QUEUE_FLUSH, null);
+                    }else {
+                        tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
+                        mode = null;
+                    }
+                    break;
+                case 2:
+                    MessageApp ma = new MessageApp(this);
+                    //ma.sendMessage(new Message(s,contact));
+                    ma.sendLongSMS();
+                    tts.speak(getString(R.string.composed_message), TextToSpeech.QUEUE_FLUSH, null);
+                    mode = null;
+                    break;
+            }
+        }
+    }
+
+    private void tell_date(ArrayList<String> results, String current) {
+        tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    private void tell_time(ArrayList<String> results, String current) {
+        tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    private void set_alarm(ArrayList<String> results, String current) {
+        if(!(mode == MenuItem.SET_ALARM)){
+            tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+            mode = MenuItem.SET_ALARM;
+        }else {
+            mode.changeState();
+            switch (mode.getState()) {
+                case 1:
+                    hour = "";
+                    for(String token : results){
+                        hour = NumFixer.fixNumber(token);
+                        if(!hour.equals(""))
+                            break;
+                    }
+
+                    if(hour.equals("")){
+                        tts.speak(getString(R.string.wrong_hour),TextToSpeech.QUEUE_FLUSH,null);
+                        mode.repeat();
+                    }else {
+                        tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
+                    }
+
+                    break;
+                case 2:
+                    minutes = "";
+                    for(String token : results){
+                        minutes = NumFixer.fixNumber(token);
+                        if(!minutes.equals(""))
+                            break;
+                    }
+
+                    if(minutes.equals("")){
+                        tts.speak(getString(R.string.wrocng_minute),TextToSpeech.QUEUE_FLUSH,null);
+                        mode.repeat();
+                    }else {
+                        alarmApp = new AlarmApp(hour, minutes, this);
+                        alarmApp.setAlarm();
+                        mode = null;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void say_menu(ArrayList<String> results, String current) {
+        tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    private void help(ArrayList<String> results, String current) {
+        CallApp c = new CallApp(this);
+        if(c.makeCall(Contact.POLICE)) {
+            tts.speak(getString(R.string.calm), TextToSpeech.QUEUE_FLUSH, null);
+        }else{
+            tts.speak(getString(R.string.unlucky),
+                    TextToSpeech.QUEUE_FLUSH, null);
+        }
+    }
+
+
+     private boolean checkCommand(String str1,String str2){
         String[] s1 = str1.split(" ");
         String[] s2 = str2.split(" ");
 
