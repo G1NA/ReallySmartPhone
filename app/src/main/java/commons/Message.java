@@ -1,9 +1,5 @@
 package commons;
 
-/**
- * Created by gina4_000 on 9/1/2017.
- */
-
 public class Message {
     private String body;
     private Contact contact;
