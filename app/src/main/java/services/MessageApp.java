@@ -2,6 +2,7 @@ package services;
 
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.Telephony;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -31,7 +32,9 @@ public class MessageApp {
 
         Cursor cursor = act.getContentResolver().query(
                 SMS_INBOX_CONTENT_URI,
-                new String[] { "person", "date", "body" },
+                new String[] {  Telephony.TextBasedSmsColumns.PERSON,  Telephony.TextBasedSmsColumns.DATE,
+                        Telephony.TextBasedSmsColumns.BODY,  Telephony.TextBasedSmsColumns.CREATOR ,
+                        Telephony.TextBasedSmsColumns.DATE_SENT},
                 null,
                 null,
                 SORT_ORDER);
@@ -50,8 +53,10 @@ public class MessageApp {
                     long timestamp = cursor.getLong(1);
                     String body = cursor.getString(2);
                     Log.i("id", contactId_string);
-                    Log.i("ts", timestamp+"");
+                    Log.i("date", timestamp+"");
                     Log.i("body",body);
+                    Log.i("creator", cursor.getString(3));
+                    Log.i("date sent", cursor.getString(4));
                     //TODO return something readable enough
                 }
             } finally {
