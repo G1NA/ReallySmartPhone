@@ -11,9 +11,7 @@ import commons.Message;
 
 import java.util.ArrayList;
 
-/**
- * Created by gina4_000 on 9/1/2017.
- */
+
 public class MessageApp {
 
     AppCompatActivity act;
@@ -63,15 +61,6 @@ public class MessageApp {
         return l;
     }
 
-    public void sendLongSMS() {
-        String phoneNumber = "0123456789";
-        String message = "Hello World! Now we are going to demonstrate " +
-                "how to send a message with more than 160 characters from your Android application.";
-        SmsManager smsManager = SmsManager.getDefault();
-        ArrayList<String> parts = smsManager.divideMessage(message);
-        smsManager.sendMultipartTextMessage(phoneNumber, null, parts, null, null);
-    }
-
     public boolean sendMessage(Message m){
 
         String phoneNo = Contact.getContactNumber(m.getContact().getName(), Contact.getContacts(act));
@@ -79,7 +68,7 @@ public class MessageApp {
         try {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNo, null, m.getBody(), null, null);
-
+            return true;
         } catch (Exception ex) {
             ex.printStackTrace();
         }

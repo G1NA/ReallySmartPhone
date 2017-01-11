@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import commons.Contact;
+import commons.Message;
 import helpers.NumFixer;
 import services.AddContactApp;
 import services.AlarmApp;
@@ -24,6 +25,7 @@ import services.CallApp;
 import services.DateTimeApp;
 import services.MessageApp;
 import services.PlayMusicApp;
+
 
 public final class MainApp extends AppCompatActivity implements View.OnClickListener{
 
@@ -166,6 +168,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 tell_time(results, s);
                 break;
             } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
+                Log.d("", "mphke");
                 menu_item_found = true;
                 set_alarm(results, s);
                 break;
@@ -300,8 +303,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                     break;
                 case 2:
                     MessageApp ma = new MessageApp(this);
-                    //ma.sendMessage(new Message(s,contact));
-                    ma.sendLongSMS();
+                    boolean b = ma.sendMessage(new Message(results.get(0), contact));
                     tts.speak(getString(R.string.composed_message), TextToSpeech.QUEUE_FLUSH, null);
                     mode = null;
                     break;
