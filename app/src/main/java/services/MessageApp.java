@@ -33,6 +33,7 @@ public class MessageApp {
                 new String[] {  Telephony.TextBasedSmsColumns.PERSON,  Telephony.TextBasedSmsColumns.DATE,
                         Telephony.TextBasedSmsColumns.BODY,  Telephony.TextBasedSmsColumns.CREATOR ,
                         Telephony.TextBasedSmsColumns.DATE_SENT},
+
                 null,
                 null,
                 SORT_ORDER);
