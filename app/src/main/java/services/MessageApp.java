@@ -31,7 +31,7 @@ public class MessageApp {
         Cursor cursor = act.getContentResolver().query(
                 SMS_INBOX_CONTENT_URI,
                 new String[] {  Telephony.TextBasedSmsColumns.PERSON,  Telephony.TextBasedSmsColumns.DATE,
-                        Telephony.TextBasedSmsColumns.BODY,  Telephony.TextBasedSmsColumns.CREATOR ,
+                        Telephony.TextBasedSmsColumns.BODY,
                         Telephony.TextBasedSmsColumns.DATE_SENT},
 
                 null,
@@ -54,8 +54,7 @@ public class MessageApp {
                     Log.i("id", contactId_string);
                     Log.i("date", timestamp+"");
                     Log.i("body",body);
-                    Log.i("creator", cursor.getString(3));
-                    Log.i("date sent", cursor.getString(4));
+                    Log.i("date sent", cursor.getString(3));
                     //TODO return something readable enough
                 }
             } finally {
