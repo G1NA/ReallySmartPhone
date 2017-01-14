@@ -23,10 +23,10 @@ public class AddContact extends MenuItem {
 
     @Override
     public void action(ArrayList<String> results, String current, MainApp main) {
-        changeState();
         switch (getState()){
             case 0:
                 main.speak(main.getString(R.string.ask_contact_name));
+                break;
             case 1:
                 contact = new Contact();
                 contact.setName(current);
@@ -39,6 +39,6 @@ public class AddContact extends MenuItem {
                 main.speak(main.getString(R.string.added_contact));
                 break;
         }
-
+        changeState();
     }
 }

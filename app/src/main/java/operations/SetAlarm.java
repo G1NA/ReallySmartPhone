@@ -23,10 +23,10 @@ public class SetAlarm extends MenuItem {
 
     @Override
     public void action(ArrayList<String> results, String current, MainApp main) {
-            changeState();
             switch (getState()) {
                 case 0:
                     main.speak(main.getString(R.string.ask_hour_for_alarm));
+                    break;
                 case 1:
                     hour = "";
                     for(String token : results){
@@ -59,5 +59,7 @@ public class SetAlarm extends MenuItem {
                     }
                     break;
             }
+
+        changeState();
     }
 }

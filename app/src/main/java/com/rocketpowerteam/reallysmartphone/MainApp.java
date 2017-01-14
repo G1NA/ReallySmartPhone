@@ -71,7 +71,7 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         menuItems.add(new SetAlarm("alarm", 3));
         menuItems.add(new StopMusic("stop",1));
         menuItems.add(new PlayMusic("play music",1));
-        menuItems.add(new ReadMessage("read message messages unread", 1));
+        menuItems.add(new ReadMessage("read unread", 1));
         menuItems.add(new ComposeMessage("create compose send", 3));
         menuItems.add(new Help("help emergency", 1));
     }

@@ -20,10 +20,10 @@ public class MakeCall extends MenuItem {
 
     @Override
     public void action(ArrayList<String> results, String current, MainApp main) {
-        changeState();
         switch (getState()) {
             case 0:
                 main.speak(main.getString(R.string.ask_contact_to_call));
+                break;
             case 1:
                 CallApp c = new CallApp(main);
                 if (!c.makeCall(results))
@@ -31,6 +31,7 @@ public class MakeCall extends MenuItem {
                 break;
         }
 
+        changeState();
     }
 
 }

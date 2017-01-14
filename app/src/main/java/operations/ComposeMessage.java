@@ -25,10 +25,10 @@ public class ComposeMessage extends MenuItem {
     @Override
     public void action(ArrayList<String> results, String current, MainApp main) {
 
-        changeState();
         switch (getState()){
             case 0:
                 main.speak(main.getString(R.string.ask_contact_to_send_message));
+                break;
             case 1:
                 contact = new Contact();
                 Cursor cur = Contact.getContacts(main);
@@ -56,5 +56,7 @@ public class ComposeMessage extends MenuItem {
                 main.speak(main.getString(R.string.composed_message));
                 break;
         }
+
+        changeState();
     }
 }

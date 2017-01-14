@@ -25,7 +25,7 @@ public abstract class MenuItem {
     }
 
     public void changeState(){
-        inner_state += 1 % max_state;
+        inner_state += 1;
     }
 
     public int getState(){ return this.inner_state; }
@@ -36,7 +36,7 @@ public abstract class MenuItem {
         inner_state--;
     }
 
-    public boolean isFinished(){ return  inner_state == max_state - 1;}
+    public boolean isFinished(){ return  inner_state == max_state; }
     protected void setFinished(){ inner_state = max_state - 1;}
 
     public boolean checkCommand(String str){
