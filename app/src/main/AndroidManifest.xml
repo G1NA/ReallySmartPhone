@@ -23,7 +23,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Videre"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
@@ -34,7 +34,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <activity android:name=".MainApp" android:configChanges="orientation|screenSize">
+        <activity android:name="com.rocketpowerteam.reallysmartphone.MainApp" android:configChanges="orientation|screenSize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
