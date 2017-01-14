@@ -30,6 +30,10 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     private boolean hasNetworkConnection = false;
     private int clickCount = 0;
     private ArrayList<MenuItem> menuItems = new ArrayList<>();
+    private boolean confirmation_state = false;
+    private String data_to_use = "";
+    private ArrayList<String> results_to_use;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,19 +127,34 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             int item_num = 0;
             for(MenuItem item : menuItems){
                 if(item.checkCommand(s.toLowerCase()) || mode == item_num){
-                    //init mode
-                    if(mode == NO_MODE){
+                    menu_item_found = true;
+
+                    if(mode == NO_MODE){ //init mode
+                        item.resetState();
                         mode = item_num;
+                    }else { //confirm user data
+                        if (confirmation_state) {
+                            if(s.toLowerCase().equals("no")){
+                                item.repeat();
+                            }
+                            confirmation_state = false;
+                        } else {
+                            data_to_use = s;
+                            results_to_use = results;
+                            confirmData(s);
+                            break;
+                        }
                     }
-                    item.action(results, s, this);
+
+                    item.action(results_to_use, data_to_use, this);
                     //if after action TextToSpeech queue is not empty it is finally flushed here
                     speak_flush();
                     //if the whole operation finished then we return to the <arxiko> mode
                     if(item.isFinished()){
                         mode = NO_MODE;
                     }
-                    menu_item_found = true;
                     break;
+
                 }
                 item_num++;
             }
@@ -154,6 +173,12 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
                 pm.volumeUp();
             }
         }
+    }
+
+    private void confirmData(String s) {
+        tts.speak(getString(R.string.you_said)+" "+s+" "+getString(R.string.is_that_correct),
+                TextToSpeech.QUEUE_FLUSH, null);
+        confirmation_state = true;
     }
 
     public DateTimeApp getDT(){ return dt; }

@@ -17,5 +17,6 @@ public class StopMusic extends MenuItem {
     public void action(ArrayList<String> results, String current, MainApp main) {
         if (main.getPlayer()!=null && main.getPlayer().isPaused())
             main.getPlayer().stopPlayer();
+        changeState();
     }
 }

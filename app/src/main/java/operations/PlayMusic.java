@@ -20,5 +20,6 @@ public class PlayMusic extends MenuItem {
             main.speak(main.getString(R.string.failed_to_find_songs));
         else
             main.speak(main.getString(R.string.stop_music));
+        changeState();
     }
 }

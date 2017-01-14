@@ -25,5 +25,6 @@ public class Help extends MenuItem {
         }else{
             main.speak(main.getString(R.string.unlucky));
         }
+        changeState();
     }
 }

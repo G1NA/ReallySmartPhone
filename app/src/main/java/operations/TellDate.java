@@ -16,5 +16,6 @@ public class TellDate extends MenuItem {
     @Override
     public void action(ArrayList<String> results, String current, MainApp main) {
         main.speak(main.getDT().getReadableDate());
+        changeState();
     }
 }

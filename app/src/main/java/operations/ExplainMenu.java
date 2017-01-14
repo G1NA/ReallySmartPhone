@@ -17,5 +17,6 @@ public class ExplainMenu extends MenuItem {
     @Override
     public void action(ArrayList<String> results, String current, MainApp main) {
         main.speak(main.getMenu());
+        changeState();
     }
 }

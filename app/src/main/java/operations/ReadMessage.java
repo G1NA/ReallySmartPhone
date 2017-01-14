@@ -29,5 +29,6 @@ public class ReadMessage extends MenuItem {
                 main.speak(message);
             }
         }
+        changeState();
     }
 }
