@@ -15,7 +15,7 @@ import java.util.ArrayList;
 /**
  * Created by gina4_000 on 7/1/2017.
  */
-public class AddContactApp {
+public class AddContactApp{
 
     AppCompatActivity m;
     Contact c;

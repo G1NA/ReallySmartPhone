@@ -2,7 +2,6 @@ package com.rocketpowerteam.reallysmartphone;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
@@ -16,58 +15,21 @@ import android.widget.ImageButton;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import commons.Contact;
-import commons.Message;
-import helpers.NumFixer;
-import services.AddContactApp;
-import services.AlarmApp;
-import services.CallApp;
-import services.DateTimeApp;
-import services.MessageApp;
-import services.PlayMusicApp;
+import operations.*;
+import services.*;
 
 
 public final class MainApp extends AppCompatActivity implements View.OnClickListener{
 
-    //try com
     private ImageButton btn;
     private TextToSpeech tts;
-    boolean calMode = false;
-    private MenuItem mode = null;
-    private Contact contact = new Contact();
-    private AlarmApp alarmApp;
+    private static final int NO_MODE = -1; //invalid num for no mode
+    private int mode = NO_MODE;
     private PlayMusicApp pm = new PlayMusicApp(this);
     private DateTimeApp dt = new DateTimeApp(this);
     private boolean hasNetworkConnection = false;
     private int clickCount = 0;
-    private String hour;
-    private String minutes;
-
-    enum MenuItem {
-        EXLAIN_MENU("menu", 1), ADD_CONTACT("add contact", 3), CALL_CONTACT("call", 2 ), PLAY_MUSIC("play music", 1),
-        READ_MESSAGE("read", 1), COMPOSE_MESSAGE("create compose send", 3), SET_ALARM("alarm", 3),
-        STOP_MUSIC("stop", 1), TELL_DATE("date", 1), TELL_TIME("time", 1),HELP("help emergency", 1);
-        String strCommand;
-        int inner_state = 0; // used to choose between inner states of a menu item
-        // for example call has two states 1) ask for name 2) make call
-        int max_state;
-        MenuItem(String strCommand, int max_state)
-        {
-            this.strCommand = strCommand;
-            this.max_state = max_state;
-        }
-        public String getDetail() {
-            return strCommand;
-        }
-        public void changeState(){
-            inner_state += 1 % max_state;
-        }
-        public int getState(){ return this.inner_state; }
-        public void resetState() { this.inner_state = 0; }
-        public void repeat() {
-            inner_state--;
-        }
-    }
+    private ArrayList<MenuItem> menuItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +37,11 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_main);
         btn = (ImageButton) findViewById(R.id.talktome);
         btn.setOnClickListener(this);
+        initMenuItems();
+        initTextToSpeech();
+    }
+
+    private void initTextToSpeech() {
         tts = new TextToSpeech(MainApp.this, new TextToSpeech.OnInitListener(){
 
             @Override
@@ -93,6 +60,22 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
             }
         });
     }
+
+
+    private void initMenuItems(){
+        menuItems.add(new ExplainMenu("menu", 1));
+        menuItems.add(new MakeCall("call",2));
+        menuItems.add(new AddContact("contact", 3));
+        menuItems.add(new TellDate("date", 1));
+        menuItems.add(new TellTime("time", 1));
+        menuItems.add(new SetAlarm("alarm", 3));
+        menuItems.add(new StopMusic("stop",1));
+        menuItems.add(new PlayMusic("play music",1));
+        menuItems.add(new ReadMessage("read message messages unread", 1));
+        menuItems.add(new ComposeMessage("create compose send", 3));
+        menuItems.add(new Help("help emergency", 1));
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -134,64 +117,38 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
     private void find_menu_action(Intent data){
         ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         boolean menu_item_found = false;
+
         for(String s:results){
             Log.i("res", s);
-            if(checkCommand(s.toLowerCase(), MenuItem.CALL_CONTACT.getDetail()) || mode == MenuItem.CALL_CONTACT){
-                menu_item_found = true;
-                call_contact(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.ADD_CONTACT.getDetail().toLowerCase()) || mode == MenuItem.ADD_CONTACT){
-                menu_item_found = true;
-                add_contact(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.STOP_MUSIC.getDetail())) {
-                menu_item_found = true;
-                stop_music(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.PLAY_MUSIC.getDetail()) || mode == MenuItem.PLAY_MUSIC){
-                menu_item_found = true;
-                play_music(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.READ_MESSAGE.getDetail()) || mode == MenuItem.READ_MESSAGE){
-                menu_item_found = true;
-                read_message(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.COMPOSE_MESSAGE.getDetail()) || mode == MenuItem.COMPOSE_MESSAGE) {
-                menu_item_found = true;
-                compose_message(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(),MenuItem.TELL_DATE.getDetail())) {
-                menu_item_found = true;
-                tell_date(results,s);
-                break;
-            }else if(checkCommand(s.toLowerCase(), MenuItem.TELL_TIME.getDetail())) {
-                menu_item_found = true;
-                tell_time(results, s);
-                break;
-            } else if(checkCommand(s.toLowerCase(),MenuItem.SET_ALARM.getDetail())|| mode == MenuItem.SET_ALARM){
-                Log.d("", "mphke");
-                menu_item_found = true;
-                set_alarm(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(),MenuItem.EXLAIN_MENU.getDetail())) {
-                menu_item_found = true;
-                say_menu(results, s);
-                break;
-            }else if(checkCommand(s.toLowerCase(),MenuItem.HELP.getDetail())){
-                menu_item_found = true;
-                help(results, s);
-                break;
-
-            }else{
-                continue;
+            int item_num = 0;
+            for(MenuItem item : menuItems){
+                if(item.checkCommand(s.toLowerCase()) || mode == item_num){
+                    //init mode
+                    if(mode == NO_MODE){
+                        mode = item_num;
+                    }
+                    item.action(results, s, this);
+                    //if after action TextToSpeech queue is not empty it is finally flushed here
+                    speak_flush();
+                    //if the whole operation finished then we return to the <arxiko> mode
+                    if(item.isFinished()){
+                        mode = NO_MODE;
+                    }
+                    menu_item_found = true;
+                    break;
+                }
+                item_num++;
             }
+
+            if(menu_item_found)
+                break;
         }
 
         if(!menu_item_found){
             tts.speak(getString(R.string.wrong_input), TextToSpeech.QUEUE_FLUSH, null);
         }
 
-        if(mode == null){
+        if(mode == NO_MODE){
             if(pm!=null && pm.isPaused()){
                 pm.resume();
                 pm.volumeUp();
@@ -199,201 +156,20 @@ public final class MainApp extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void call_contact(ArrayList<String> results, String current) {
-        if (!(mode == MenuItem.CALL_CONTACT)) {
-            calMode = true;
-            mode = MenuItem.CALL_CONTACT;
-            tts.speak(getString(R.string.ask_contact_to_call), TextToSpeech.QUEUE_FLUSH, null);
-        }
-        else{
-            mode.changeState();
-            switch (mode.getState()) {
-                case 1:
-                    CallApp c = new CallApp(this);
-                    if (!c.makeCall(results))
-                        tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
-                    calMode = false;
-                    mode = null;
-                    break;
-            }
-        }
+    public DateTimeApp getDT(){ return dt; }
+
+    public PlayMusicApp getPlayer(){ return pm; }
+
+    //TODO compose sentence explaining menu from the items in menu
+    public String getMenu() {
+        return getString(R.string.menu);
     }
 
-    private void add_contact(ArrayList<String> results, String current) {
-
-        if(!(mode == MenuItem.ADD_CONTACT)){
-            mode = MenuItem.ADD_CONTACT;
-            mode.resetState();
-            tts.speak(getString(R.string.ask_contact_name), TextToSpeech.QUEUE_FLUSH, null);
-        }else{
-            mode.changeState();
-            switch (mode.getState()){
-                case 1:
-                    contact = new Contact();
-                    contact.setName(current);
-                    tts.speak(getString(R.string.ask_contact_number), TextToSpeech.QUEUE_FLUSH, null);
-                    break;
-                case 2:
-                    contact.setNumber(NumFixer.fixNumber(current));
-                    AddContactApp ac = new AddContactApp(contact, this);
-                    ac.addContact();
-                    tts.speak(getString(R.string.added_contact), TextToSpeech.QUEUE_FLUSH, null);
-                    mode = null;
-                    break;
-            }
-        }
-    }
-
-    private void stop_music(ArrayList<String> results, String current) {
-        if (pm!=null && pm.isPaused())
-            pm.stopPlayer();
-    }
-
-    private void play_music(ArrayList<String> results, String current) {
-        pm = new PlayMusicApp(this);
-        if(!pm.playMusic())
-            tts.speak(getString(R.string.failed_to_find_songs), TextToSpeech.QUEUE_FLUSH, null);
-        else
-            tts.speak(getString(R.string.stop_music), TextToSpeech.QUEUE_FLUSH, null);
-        mode = null;
-    }
-
-    private void read_message(ArrayList<String> results, String current) {
-        MessageApp mes = new MessageApp(this);
-        ArrayList<String> messages = mes.readMessages();
-        if(messages.size() == 0){
-            tts.speak(getString(R.string.no_messages), TextToSpeech.QUEUE_FLUSH, null);
-        }
-        else{
-            tts.speak(getString(R.string.you_have)+" "+messages.size()+" "+getString(R.string.unread_mes),TextToSpeech.QUEUE_ADD,null);
-            for(String message: messages){
-                tts.speak(message , TextToSpeech.QUEUE_ADD, null);
-            }
-            tts.speak(null,TextToSpeech.QUEUE_FLUSH,null);
-        }
-    }
-
-    private void compose_message(ArrayList<String> results, String current) {
-        if (!(mode == MenuItem.COMPOSE_MESSAGE)) {
-            mode = MenuItem.COMPOSE_MESSAGE;
-            mode.resetState();
-            tts.speak(getString(R.string.ask_contact_to_send_message), TextToSpeech.QUEUE_FLUSH, null);
-        }
-        else{
-            mode.changeState();
-            switch (mode.getState()){
-                case 1:
-                    contact = new Contact();
-                    Cursor cur = Contact.getContacts(this);
-                    String phoneNo = null;
-                    for(String name:results) {
-                        phoneNo = Contact.getContactNumber(name,cur);
-                        if(phoneNo != null) {
-                            contact.setName(name);
-                            contact.setNumber(phoneNo);
-                            break;
-                        }
-                    }
-
-                    if(phoneNo != null) {
-                        tts.speak(getString(R.string.tell_body_message), TextToSpeech.QUEUE_FLUSH, null);
-                    }else {
-                        tts.speak(getString(R.string.failed_to_find_contact), TextToSpeech.QUEUE_FLUSH, null);
-                        mode = null;
-                    }
-                    break;
-                case 2:
-                    MessageApp ma = new MessageApp(this);
-                    boolean b = ma.sendMessage(new Message(results.get(0), contact));
-                    tts.speak(getString(R.string.composed_message), TextToSpeech.QUEUE_FLUSH, null);
-                    mode = null;
-                    break;
-            }
-        }
-    }
-
-    private void tell_date(ArrayList<String> results, String current) {
-        tts.speak(dt.getReadableDate(),TextToSpeech.QUEUE_FLUSH, null);
-    }
-
-    private void tell_time(ArrayList<String> results, String current) {
-        tts.speak(dt.getReadableTime(), TextToSpeech.QUEUE_FLUSH, null);
-    }
-
-    private void set_alarm(ArrayList<String> results, String current) {
-        if(!(mode == MenuItem.SET_ALARM)){
-            mode = MenuItem.SET_ALARM;
-            mode.resetState();
-            tts.speak(getString(R.string.ask_hour_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
-        }else {
-            mode.changeState();
-            switch (mode.getState()) {
-                case 1:
-                    hour = "";
-                    for(String token : results){
-                        hour = NumFixer.fixNumber(token);
-                        if(!hour.equals(""))
-                            break;
-                    }
-
-                    if(hour.equals("")){
-                        tts.speak(getString(R.string.wrong_hour),TextToSpeech.QUEUE_FLUSH,null);
-                        mode.repeat();
-                    }else {
-                        tts.speak(getString(R.string.ask_minutes_for_alarm), TextToSpeech.QUEUE_FLUSH, null);
-                    }
-
-                    break;
-                case 2:
-                    minutes = "";
-                    for(String token : results){
-                        minutes = NumFixer.fixNumber(token);
-                        if(!minutes.equals(""))
-                            break;
-                    }
-
-                    if(minutes.equals("")){
-                        tts.speak(getString(R.string.wrocng_minute),TextToSpeech.QUEUE_FLUSH,null);
-                        mode.repeat();
-                    }else {
-                        alarmApp = new AlarmApp(hour, minutes, this);
-                        alarmApp.setAlarm();
-                        mode = null;
-                    }
-                    break;
-            }
-        }
-    }
-
-    private void say_menu(ArrayList<String> results, String current) {
-        tts.speak(getString(R.string.menu), TextToSpeech.QUEUE_FLUSH, null);
-    }
-
-    private void help(ArrayList<String> results, String current) {
-        CallApp c = new CallApp(this);
-        if(c.makeCall(Contact.POLICE)) {
-            tts.speak(getString(R.string.calm), TextToSpeech.QUEUE_FLUSH, null);
-        }else{
-            tts.speak(getString(R.string.unlucky),
-                    TextToSpeech.QUEUE_FLUSH, null);
-        }
-    }
+    public void speak(String sentence){ tts.speak(sentence,TextToSpeech.QUEUE_ADD, null); }
+    public void speak_flush(){ tts.speak(null, TextToSpeech.QUEUE_FLUSH, null); }
 
 
-     private boolean checkCommand(String str1,String str2){
-        String[] s1 = str1.split(" ");
-        String[] s2 = str2.split(" ");
-
-        for(int i = 0; i < s1.length; i++){
-            for(int j = 0; j < s2.length; j++){
-                if(s1[i].equals(s2[j]))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-
+    //TODO maybe create another class for network connection managment
     private boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
