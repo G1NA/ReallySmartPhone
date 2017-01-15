@@ -19,7 +19,7 @@
         app:srcCompat="@drawable/m2"
         android:id="@+id/talktome"
         android:background="@null"
-        android:scaleType="fitXY" />
+        android:scaleType="centerInside"/>
 
 
 </LinearLayout>
